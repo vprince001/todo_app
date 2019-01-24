@@ -1,0 +1,8 @@
+* DONE add functionality on signup to save data to a json file
+* DONE change signup form to login form on submit click.
+* DONE display user name already taken message.
+* DONE make tests for provideData function.
+* TODO make tests for app and framework.
+* TODO create homepage.
+* TODO add authentication on userId and password on login page.
+* TODO redirect to homepage on login.
