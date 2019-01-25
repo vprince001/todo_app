@@ -4,8 +4,6 @@
 * DONE make tests for provideData function.
 * TODO make tests for app and framework.
 * TODO create homepage.
-* TODO add authentication on userId and password on login page.
-* TODO redirect to homepage on login.
 
 
 * signup
@@ -14,8 +12,8 @@
 
 * homepage
   * Name
-  * User ID
-  * logout button
+  * DONE User ID
+  * DONE logout button
   * show lists in listnames box
   * Add new List button
   * Add delete list button
@@ -32,6 +30,10 @@
   * Add mark/unmark item buttom
   * Add save button
 
-* handle login
-  * Userid and password authentication
-  * redirect to homepage
+* DONE handle login
+  * DONE Userid authentication
+  * DONE password authentication
+  * DONE redirect to homepage
+
+* Fix Issues
+  * On authentication error take proper action

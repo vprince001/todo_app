@@ -2,22 +2,25 @@
 <html>
 <head>
   <title>User Dashboard</title>
-  <!-- <link rel="stylesheet" type="text/css" media="screen" href="main.css" /> -->
-  <!-- <script src="main.js"></script> -->
 </head>
 <body>
   <div>
     <label>UserId: ___userId___</label>
   </div>
+  <div style = "position: fixed; right : 20px; top: 10px">
+    <a href="/">
+      <button>log out</button>
+    </a>
+  </div>
   <div>
-    <form>
+    <form action="/addNewList" method="POST">
       <label> Add New List here : </label>
        <input
       class="input"
       type="text"
       placeholder="Enter Title for new list"
       name="listTitle"
-    /><button> Add </button>
+    /><button type="submit"> Add </button>
   </form>
 </div>
     <br/>

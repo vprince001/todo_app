@@ -42,6 +42,7 @@ const parseLoginData = function(req) {
 
 const registerNewUser = function(req, res) {
   let userDetails = parseLoginData(req);
+  userDetails.todoLists = {};
   let filePath = `./private_data/${userDetails.USERID}.json`;
 
   if (fs.existsSync(filePath)) {
@@ -56,8 +57,6 @@ const registerNewUser = function(req, res) {
 
 const renderMainPage = function(nameOfForm, req, res) {
   fs.readFile(INDEXPATH, ENCODING, function(err, content) {
-    if (err) {
-    }
     res.write(content.replace(FORMPLACEHOLDER, form[nameOfForm]));
     res.end();
   });
@@ -65,11 +64,23 @@ const renderMainPage = function(nameOfForm, req, res) {
 
 const authenticateUser = function(req, res) {
   const { USERID, PASSWORD } = parseLoginData(req);
-  if (!fs.existsSync(`./private_data/${USERID}.json`)) {
+  const filePath = `./private_data/${USERID}.json`;
+  if (!fs.existsSync(filePath)) {
     res.write("Account doesn't exist");
     res.end();
+    return;
   }
-  renderHomepage(req, res, USERID);
+  let expectedPassword = "";
+  fs.readFile(filePath, ENCODING, function(err, content) {
+    content = JSON.parse(content);
+    expectedPassword = content.PASSWORD;
+    if (PASSWORD != expectedPassword) {
+      res.write("Wrong Password");
+      res.end();
+      return;
+    }
+    renderHomepage(req, res, USERID);
+  });
 };
 
 const renderHomepage = function(req, res, USERID) {

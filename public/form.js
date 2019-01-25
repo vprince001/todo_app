@@ -12,7 +12,7 @@ const form = {
     <label>Password </label>
     <input
       class="input"
-      type="text"
+      type="password"
       placeholder="Enter Your Password Here"
       name="password"
     />
