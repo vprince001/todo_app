@@ -1,6 +1,5 @@
 const isMatching = (req, route) => {
   if (route.method && req.method != route.method) return false;
-  if (route.url instanceof RegExp && route.url.test(req.url)) return true;
   if (route.url && req.url != route.url) return false;
   return true;
 };
@@ -24,6 +23,7 @@ class WebFrame {
   post(url, handler) {
     this.routes.push({ method: "POST", url, handler });
   }
+
   handleRequest(req, res) {
     let isValidRoute = isMatching.bind(null, req);
     const matchedRoutes = this.routes.filter(isValidRoute);
@@ -40,4 +40,4 @@ class WebFrame {
   }
 }
 
-module.exports = WebFrame;
+module.exports = { App: WebFrame, isMatching };

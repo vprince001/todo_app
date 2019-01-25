@@ -1,6 +1,8 @@
 const fs = require("fs");
-const webFrame = require("./frameWork.js");
+const { App } = require("./frameWork.js");
 const form = require("../public/form.js");
+
+const { INDEXPATH, ENCODING, FORMPLACEHOLDER } = require("./constants");
 
 const readBody = function(req, res, next) {
   let content = "";
@@ -12,7 +14,7 @@ const readBody = function(req, res, next) {
 };
 
 const getRequest = function(url) {
-  if (url == "/") return "./public/index.html";
+  if (url == "/") return INDEXPATH;
   return "./public" + url;
 };
 
@@ -53,15 +55,15 @@ const registerNewUser = function(req, res) {
 };
 
 const renderMainPage = function(nameOfForm, req, res) {
-  fs.readFile("./public/index.html", "utf8", function(err, content) {
+  fs.readFile(INDEXPATH, ENCODING, function(err, content) {
     if (err) {
     }
-    res.write(content.replace("___form___", form[nameOfForm]));
+    res.write(content.replace(FORMPLACEHOLDER, form[nameOfForm]));
     res.end();
   });
 };
 
-const app = new webFrame();
+const app = new App();
 
 app.use(readBody);
 app.get("/", renderMainPage.bind(null, "loginForm"));
@@ -71,4 +73,11 @@ app.use(provideData);
 
 const handleRequest = app.handleRequest.bind(app);
 
-module.exports = { handleRequest, provideData };
+module.exports = {
+  handleRequest,
+  provideData,
+  getRequest,
+  parseData,
+  parseLoginData,
+  renderMainPage
+};
