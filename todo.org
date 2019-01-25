@@ -6,3 +6,32 @@
 * TODO create homepage.
 * TODO add authentication on userId and password on login page.
 * TODO redirect to homepage on login.
+
+
+* signup
+  * Name
+  * confirm password
+
+* homepage
+  * Name
+  * User ID
+  * logout button
+  * show lists in listnames box
+  * Add new List button
+  * Add delete list button
+  * Add edit list button
+
+* todo list page
+  * show title
+  * edit title
+  * logout button
+  * show item
+  * Add new item button
+  * Add delete item button
+  * Add edit item button
+  * Add mark/unmark item buttom
+  * Add save button
+
+* handle login
+  * Userid and password authentication
+  * redirect to homepage

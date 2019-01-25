@@ -63,12 +63,33 @@ const renderMainPage = function(nameOfForm, req, res) {
   });
 };
 
+const authenticateUser = function(req, res) {
+  const { USERID, PASSWORD } = parseLoginData(req);
+  if (!fs.existsSync(`./private_data/${USERID}.json`)) {
+    res.write("Account doesn't exist");
+    res.end();
+  }
+  renderHomepage(req, res, USERID);
+};
+
+const renderHomepage = function(req, res, USERID) {
+  const filePath = getRequest(req.url);
+  fs.readFile(filePath, ENCODING, function(err, content) {
+    if (err) {
+      console.log(err);
+    }
+    res.write(content.replace("___userId___", USERID));
+    res.end();
+  });
+};
+
 const app = new App();
 
 app.use(readBody);
 app.get("/", renderMainPage.bind(null, "loginForm"));
 app.get("/signUp", renderMainPage.bind(null, "signUpForm"));
 app.post("/", registerNewUser);
+app.post("/homepage.html", authenticateUser);
 app.use(provideData);
 
 const handleRequest = app.handleRequest.bind(app);

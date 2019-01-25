@@ -1,6 +1,6 @@
 const form = {
   loginForm: `<h3 style = "text-align: center"> Login </h3>
-  <form method="POST" action="/login">
+  <form method="POST" action="/homepage.html">
     <label>Name </label>
     <input
       class="input"

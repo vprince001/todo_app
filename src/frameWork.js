@@ -27,6 +27,7 @@ class WebFrame {
   handleRequest(req, res) {
     let isValidRoute = isMatching.bind(null, req);
     const matchedRoutes = this.routes.filter(isValidRoute);
+    
 
     let next = () => {
       if (matchedRoutes.length == 0) {
