@@ -136,6 +136,10 @@ const addNewTodo = function(req, res) {
   res.end();
 };
 
+const showListTitles = function(req, res, next, send) {
+  send(res, JSON.stringify(userData), 200);
+};
+
 const app = new App();
 
 app.use(readBody);
@@ -145,6 +149,7 @@ app.post("/", registerNewUser);
 app.post("/login", logUserIn);
 app.get("/homepage.html", renderHomepage);
 app.post("/addList", addNewTodo);
+app.get("/showList", showListTitles);
 app.use(provideData);
 
 const handleRequest = app.handleRequest.bind(app);
