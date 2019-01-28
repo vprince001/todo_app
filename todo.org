@@ -14,10 +14,9 @@
   * Name
   * DONE User ID
   * DONE logout button
-  * show lists in listnames box
-  * Add new List button
+  * DONE show lists in listnames box
+  * DONE Add new List button
   * Add delete list button
-  * Add edit list button
 
 * todo list page
   * show title

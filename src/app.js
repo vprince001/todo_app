@@ -129,10 +129,10 @@ const addNewTodo = function(req, res) {
   const userName = req.headers.cookie.split("=")[1];
   let filePath = `./private_data/${userName}.json`;
 
-  userData.todoLists.push(list);
+  userData.todoLists.unshift(list);
 
   fs.writeFileSync(filePath, JSON.stringify(userData));
-  res.write(listTitle);
+  res.write(JSON.stringify(userData));
   res.end();
 };
 
