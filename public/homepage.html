@@ -1,37 +1,25 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <title>User Dashboard</title>
-  <script>
-    const removeCookie = function(){
-      document.cookie = "username=; expires=Thu, 01 Jan 1970 00:00:00 UTC;"
-    }
-  </script>
-</head>
-<body>
-  <div>
-    <label>UserId: ___userId___</label>
-  </div>
-  <div style = "position: fixed; right : 20px; top: 10px">
-    <a href="/">
-      <button onclick="removeCookie()">log out</button>
-    </a>
-  </div>
-  <div>
-    <form method="POST">
+  <head>
+    <title>User Dashboard</title>
+    <script src="./scripts/homepage.js"></script>
+  </head>
+  <body>
+    <div><label>UserId: ___userId___</label></div>
+    <div style="position: fixed; right : 20px; top: 10px">
+      <a href="/"> <button onclick="removeCookie()">log out</button> </a>
+    </div>
+    <div>
       <label> Add New List here : </label>
-      <input
-       class="input"
-       type="text"
-       placeholder="Enter Title for new list"
-       name="listTitle"
-      />
-      <button type="submit"> Add </button>
-  </form>
-</div>
-    <hr>
-  <div id = "TODOs">
-    <!-- Fetch datas of different users here -->
-  </div>
-</body>  
+      <input class="input"
+          type="text"
+          placeholder="Enter Title for new list"
+          name="listTitle"
+          id="addListBox"
+          />
+        <button onclick="fetchData()">Add</button>
+    </div>
+    <hr />
+    <div id="TODOs"></div>
+  </body>
 </html>

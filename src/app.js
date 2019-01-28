@@ -117,14 +117,22 @@ const renderHomepage = function(req, res) {
 };
 
 const addNewTodo = function(req, res) {
-  const title = req.body.split("=")[1];
+  const listTitle = req.body;
+  let lastElementPlace = userData.todoLists.length;
+  let id = 0;
 
-  let list = new TodoList(1, title, []);
+  if (lastElementPlace > 0) {
+    id = userData.todoLists[lastElementPlace - 1].id + 1;
+  }
+
+  let list = new TodoList(id, listTitle, []);
   const userName = req.headers.cookie.split("=")[1];
   let filePath = `./private_data/${userName}.json`;
 
   userData.todoLists.push(list);
+
   fs.writeFileSync(filePath, JSON.stringify(userData));
+  res.write(listTitle);
   res.end();
 };
 
@@ -136,7 +144,7 @@ app.get("/signUp", renderMainPage.bind(null, "signUpForm"));
 app.post("/", registerNewUser);
 app.post("/login", logUserIn);
 app.get("/homepage.html", renderHomepage);
-app.post("/homepage.html", addNewTodo);
+app.post("/addList", addNewTodo);
 app.use(provideData);
 
 const handleRequest = app.handleRequest.bind(app);
