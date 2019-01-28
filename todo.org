@@ -5,12 +5,12 @@
 * TODO make tests for app and framework.
 * TODO create homepage.
 
-
 * signup
   * Name
   * confirm password
 
 * homepage
+
   * Name
   * DONE User ID
   * DONE logout button
@@ -34,6 +34,8 @@
   * DONE Userid authentication
   * DONE password authentication
   * DONE redirect to homepage
+  * TODO check for cookies
+  * TODO save cookies
 
 * Fix Issues
   * On authentication error take proper action

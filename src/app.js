@@ -3,6 +3,9 @@ const { App } = require("./frameWork.js");
 const form = require("../public/form.js");
 
 const { INDEXPATH, ENCODING, FORMPLACEHOLDER } = require("./constants");
+const { TodoList } = require("../public/todoList.js");
+
+let userData;
 
 const readBody = function(req, res, next) {
   let content = "";
@@ -42,7 +45,7 @@ const parseLoginData = function(req) {
 
 const registerNewUser = function(req, res) {
   let userDetails = parseLoginData(req);
-  userDetails.todoLists = {};
+  userDetails.todoLists = [];
   let filePath = `./private_data/${userDetails.USERID}.json`;
 
   if (fs.existsSync(filePath)) {
@@ -62,36 +65,67 @@ const renderMainPage = function(nameOfForm, req, res) {
   });
 };
 
-const authenticateUser = function(req, res) {
+const verifyUserId = function(filePath) {
+  return fs.existsSync(filePath);
+};
+
+const verifyPassword = function(filePath, PASSWORD) {
+  let content = fs.readFileSync(filePath, ENCODING);
+  const expectedPassword = JSON.parse(content).PASSWORD;
+  return PASSWORD == expectedPassword;
+};
+
+const logUserIn = function(req, res) {
   const { USERID, PASSWORD } = parseLoginData(req);
   const filePath = `./private_data/${USERID}.json`;
-  if (!fs.existsSync(filePath)) {
+
+  if (!verifyUserId(filePath)) {
     res.write("Account doesn't exist");
     res.end();
     return;
   }
-  let expectedPassword = "";
+
+  if (!verifyPassword(filePath, PASSWORD)) {
+    res.write("Wrong Password");
+    res.end();
+    return;
+  }
+  userData = JSON.parse(fs.readFileSync(filePath, ENCODING));
+  getHomePage(req, res);
+};
+
+const getHomePage = function(req, res) {
+  setCookie(req, res);
+  res.writeHead(302, { Location: "/homepage.html" });
+  res.end();
+};
+
+const setCookie = function(req, res) {
+  if (!req.headers.cookie) {
+    res.setHeader("Set-Cookie", `username=${userData.USERID}`);
+  }
+};
+
+const renderHomepage = function(req, res) {
+  const filePath = getRequest(req.url);
+  const userName = req.headers.cookie.split("=")[1];
   fs.readFile(filePath, ENCODING, function(err, content) {
-    content = JSON.parse(content);
-    expectedPassword = content.PASSWORD;
-    if (PASSWORD != expectedPassword) {
-      res.write("Wrong Password");
-      res.end();
-      return;
-    }
-    renderHomepage(req, res, USERID);
+    if (err) console.log(err);
+    res.write(content.replace("___userId___", userName));
+    res.end();
   });
 };
 
-const renderHomepage = function(req, res, USERID) {
-  const filePath = getRequest(req.url);
-  fs.readFile(filePath, ENCODING, function(err, content) {
-    if (err) {
-      console.log(err);
-    }
-    res.write(content.replace("___userId___", USERID));
-    res.end();
-  });
+const addNewTodo = function(req, res) {
+  const title = req.body.split("=")[1];
+
+  let list = new TodoList(1, title, []);
+  const userName = req.headers.cookie.split("=")[1];
+  let filePath = `./private_data/${userName}.json`;
+
+  userData.todoLists.push(list);
+  fs.writeFileSync(filePath, JSON.stringify(userData));
+  res.end();
 };
 
 const app = new App();
@@ -100,7 +134,9 @@ app.use(readBody);
 app.get("/", renderMainPage.bind(null, "loginForm"));
 app.get("/signUp", renderMainPage.bind(null, "signUpForm"));
 app.post("/", registerNewUser);
-app.post("/homepage.html", authenticateUser);
+app.post("/login", logUserIn);
+app.get("/homepage.html", renderHomepage);
+app.post("/homepage.html", addNewTodo);
 app.use(provideData);
 
 const handleRequest = app.handleRequest.bind(app);
