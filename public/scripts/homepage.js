@@ -1,29 +1,59 @@
-const createListsHtml = function(myText) {
-  let userData = JSON.parse(myText);
-
-  let lists = userData.todoLists.map(
-    details => "<p><a href=''>" + details.title + "</a></p>"
-  );
-  return lists.join("");
-};
-
 const removeCookie = function() {
   document.cookie = "username=; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
 };
 
-const fetchData = function(url, details) {
-  fetch(url, details)
-    .then(data => data.text())
-    .then(myText => createListsHtml(myText))
+const createItemsHtml = function(items) {
+  let itemsHtml = items.map(item => {
+    return `<p id=${item.id}>` + item.description + "</p>";
+  });
+  return itemsHtml.join("");
+};
+
+const getItems = function(data, clickedListId) {
+  const todoLists = JSON.parse(data).todoLists;
+  const matchedLists = todoLists.filter(list => list.id == clickedListId);
+  return matchedLists[0].items;
+};
+
+const fetchItems = function(clickedListId) {
+  fetch("/getData")
+    .then(response => response.text())
+    .then(data => getItems(data, clickedListId))
+    .then(items => createItemsHtml(items))
     .then(
-      taggedListTitles =>
-        (document.getElementById("TODOs").innerHTML = taggedListTitles)
+      itemsHtml => (document.getElementById("items").innerHTML = itemsHtml)
     );
 };
 
 const updateList = function() {
   const listTitle = document.getElementById("addListBox").value;
-  fetchData("/addList", { method: "POST", body: listTitle });
+  fetchLists("/addList", { method: "POST", body: listTitle });
 };
 
-window.onload = fetchData.bind(null, "/showList");
+const getLists = function(data) {
+  const userData = JSON.parse(data);
+  return userData.todoLists;
+};
+
+const createListsHtml = function(lists) {
+  let listsHtml = lists.map(list => {
+    return (
+      `<p id=${list.id} onclick=fetchItems(event.target.id)>` +
+      list.title +
+      "</p>"
+    );
+  });
+  return listsHtml.join("");
+};
+
+const fetchLists = function(url, details) {
+  fetch(url, details)
+    .then(response => response.text())
+    .then(data => getLists(data))
+    .then(lists => createListsHtml(lists))
+    .then(
+      listsHtml => (document.getElementById("lists").innerHTML = listsHtml)
+    );
+};
+
+window.onload = fetchLists.bind(null, "/getData");

@@ -13,13 +13,16 @@
       <label> Add New List here : </label>
       <input class="input"
           type="text"
-          placeholder="Enter Title for new list"
           name="listTitle"
-          id="addListBox"
+          id="addListBox" 
           />
         <button onclick="updateList()">Add</button>
     </div>
     <hr />
-    <div id="TODOs"></div>
+    <div style="display: flex;">
+      <div id="lists" style="width:100%; border: solid black 1px"></div>
+      <div id="items" style="width: 100%; border: solid black 1px"></div>
+    </div>
+    
   </body>
 </html>

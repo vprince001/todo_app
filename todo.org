@@ -21,8 +21,8 @@
 * todo list page
   * show title
   * edit title
-  * logout button
-  * show item
+  * DONE logout button
+  * DONE show items
   * Add new item button
   * Add delete item button
   * Add edit item button

@@ -3,7 +3,7 @@ const { App } = require("./frameWork.js");
 const form = require("../public/form.js");
 
 const { INDEXPATH, ENCODING, FORMPLACEHOLDER } = require("./constants");
-const { TodoList } = require("../public/todoList.js");
+const { TodoList } = require("./todoList.js");
 
 let userData;
 
@@ -118,14 +118,13 @@ const renderHomepage = function(req, res) {
 
 const addNewTodo = function(req, res) {
   const listTitle = req.body;
-  let lastElementPlace = userData.todoLists.length;
-  let id = 0;
+  let listId = 0;
 
-  if (lastElementPlace > 0) {
-    id = userData.todoLists[lastElementPlace - 1].id + 1;
+  if (userData.todoLists.length > 0) {
+    listId = userData.todoLists[0].id + 1;
   }
 
-  let list = new TodoList(id, listTitle, []);
+  let list = new TodoList(listId, listTitle, []);
   const userName = req.headers.cookie.split("=")[1];
   let filePath = `./private_data/${userName}.json`;
 
@@ -136,7 +135,7 @@ const addNewTodo = function(req, res) {
   res.end();
 };
 
-const showListTitles = function(req, res, next, send) {
+const getUserData = function(req, res, next, send) {
   send(res, JSON.stringify(userData), 200);
 };
 
@@ -149,7 +148,7 @@ app.post("/", registerNewUser);
 app.post("/login", logUserIn);
 app.get("/homepage.html", renderHomepage);
 app.post("/addList", addNewTodo);
-app.get("/showList", showListTitles);
+app.get("/getData", getUserData);
 app.use(provideData);
 
 const handleRequest = app.handleRequest.bind(app);
