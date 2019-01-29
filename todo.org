@@ -23,7 +23,7 @@
   * edit title
   * DONE logout button
   * DONE show items
-  * Add new item button
+  * DONE new item button
   * Add delete item button
   * Add edit item button
   * Add mark/unmark item buttom

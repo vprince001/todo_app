@@ -11,18 +11,23 @@
     </div>
     <div>
       <label> Add New List here : </label>
-      <input class="input"
-          type="text"
-          name="listTitle"
-          id="addListBox" 
-          />
-        <button onclick="updateList()">Add</button>
+      <input class="input" type="text" name="listTitle" id="addListBox" />
+      <button onclick="addList()">Add</button>
     </div>
     <hr />
     <div style="display: flex;">
       <div id="lists" style="width:100%; border: solid black 1px"></div>
-      <div id="items" style="width: 100%; border: solid black 1px"></div>
+      <div style="width: 100%; border: solid black 1px">
+        <div id="title"></div>
+        <div><h3>Description</h3></div>
+        <div>
+          <label> Add New Item here : </label>
+          <input class="input" type="text" name="itemDesc" id="addItemBox" />
+          <button onclick="addItem()">Add</button>
+        </div>
+        <hr />
+        <div id="items"></div>
+      </div>
     </div>
-    
   </body>
 </html>

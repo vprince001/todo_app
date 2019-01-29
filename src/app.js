@@ -4,6 +4,7 @@ const form = require("../public/form.js");
 
 const { INDEXPATH, ENCODING, FORMPLACEHOLDER } = require("./constants");
 const { TodoList } = require("./todoList.js");
+const { TodoItem } = require("./todoItem.js");
 
 let userData;
 
@@ -116,7 +117,7 @@ const renderHomepage = function(req, res) {
   });
 };
 
-const addNewTodo = function(req, res) {
+const addList = function(req, res) {
   const listTitle = req.body;
   let listId = 0;
 
@@ -126,10 +127,30 @@ const addNewTodo = function(req, res) {
 
   let list = new TodoList(listId, listTitle, []);
   const userName = req.headers.cookie.split("=")[1];
-  let filePath = `./private_data/${userName}.json`;
 
   userData.todoLists.unshift(list);
 
+  let filePath = `./private_data/${userName}.json`;
+  fs.writeFileSync(filePath, JSON.stringify(userData));
+  res.write(JSON.stringify(userData));
+  res.end();
+};
+
+const addItem = function(req, res) {
+  const { id, desc } = JSON.parse(req.body);
+  let itemId = 0;
+  const matchedList = userData.todoLists.filter(list => list.id == id)[0];
+
+  if (matchedList.length > 0) itemId = matchedList.id + 1;
+
+  let item = new TodoItem(itemId, desc, true);
+  const userId = userData.USERID;
+
+  let index = userData.todoLists.findIndex(itemDetail => itemDetail.id == id);
+
+  userData.todoLists[index].items.push(item);
+
+  let filePath = `./private_data/${userId}.json`;
   fs.writeFileSync(filePath, JSON.stringify(userData));
   res.write(JSON.stringify(userData));
   res.end();
@@ -147,7 +168,8 @@ app.get("/signUp", renderMainPage.bind(null, "signUpForm"));
 app.post("/", registerNewUser);
 app.post("/login", logUserIn);
 app.get("/homepage.html", renderHomepage);
-app.post("/addList", addNewTodo);
+app.post("/addList", addList);
+app.post("/addItem", addItem);
 app.get("/getData", getUserData);
 app.use(provideData);
 
