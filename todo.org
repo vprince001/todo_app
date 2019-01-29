@@ -10,13 +10,12 @@
   * confirm password
 
 * homepage
-
   * Name
   * DONE User ID
   * DONE logout button
   * DONE show lists in listnames box
   * DONE Add new List button
-  * Add delete list button
+  * DONE Add delete list button
 
 * todo list page
   * show title

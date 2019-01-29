@@ -117,6 +117,19 @@ const renderHomepage = function(req, res) {
   });
 };
 
+const deleteList = function(req, res) {
+  const id = req.body;
+  let index = userData.todoLists.findIndex(itemDetail => itemDetail.id == id);
+
+  userData.todoLists.splice(index, 1);
+
+  const userId = userData.USERID;
+  let filePath = `./private_data/${userId}.json`;
+  fs.writeFileSync(filePath, JSON.stringify(userData));
+  res.write(JSON.stringify(userData));
+  res.end();
+};
+
 const addList = function(req, res) {
   const listTitle = req.body;
   let listId = 0;
@@ -144,12 +157,12 @@ const addItem = function(req, res) {
   if (matchedList.length > 0) itemId = matchedList.id + 1;
 
   let item = new TodoItem(itemId, desc, true);
-  const userId = userData.USERID;
 
   let index = userData.todoLists.findIndex(itemDetail => itemDetail.id == id);
 
   userData.todoLists[index].items.push(item);
 
+  const userId = userData.USERID;
   let filePath = `./private_data/${userId}.json`;
   fs.writeFileSync(filePath, JSON.stringify(userData));
   res.write(JSON.stringify(userData));
@@ -170,6 +183,7 @@ app.post("/login", logUserIn);
 app.get("/homepage.html", renderHomepage);
 app.post("/addList", addList);
 app.post("/addItem", addItem);
+app.post("/deleteList", deleteList);
 app.get("/getData", getUserData);
 app.use(provideData);
 

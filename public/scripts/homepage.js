@@ -1,8 +1,8 @@
+let selectedListId;
+
 const removeCookie = function() {
   document.cookie = "username=; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
 };
-
-let selectedListId;
 
 const addItem = function() {
   const itemDesc = document.getElementById("addItemBox").value;
@@ -38,14 +38,13 @@ const fetchItems = function(clickedListId, url = "/getData", details) {
     .then(details => createItemBox(details));
 };
 
+const deleteList = function() {
+  fetchLists("/deleteList", { method: "POST", body: selectedListId });
+};
+
 const addList = function() {
   const listTitle = document.getElementById("addListBox").value;
   fetchLists("/addList", { method: "POST", body: listTitle });
-};
-
-const getLists = function(data) {
-  const userData = JSON.parse(data);
-  return userData.todoLists;
 };
 
 const createListsHtml = function(lists) {
@@ -57,6 +56,11 @@ const createListsHtml = function(lists) {
     );
   });
   return listsHtml.join("");
+};
+
+const getLists = function(data) {
+  const userData = JSON.parse(data);
+  return userData.todoLists;
 };
 
 const fetchLists = function(url, details) {
