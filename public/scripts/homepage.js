@@ -4,6 +4,13 @@ const removeCookie = function() {
   document.cookie = "username=; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
 };
 
+const deleteItem = function(itemId) {
+  fetchLists("/deleteItem", {
+    method: "POST",
+    body: JSON.stringify({ itemId: itemId, listId: selectedListId })
+  });
+};
+
 const addItem = function() {
   const itemDesc = document.getElementById("addItemBox").value;
 
@@ -17,7 +24,13 @@ const createItemBox = function(details) {
   let items = details.items;
 
   let itemsHtml = items.map(item => {
-    return `<p id=${item.id}>` + item.description + "</p>";
+    return (
+      "<p>" +
+      item.description +
+      `<button id=${
+        item.id
+      } onclick=deleteItem(event.target.id)> X </button></p>`
+    );
   });
   document.getElementById("items").innerHTML = itemsHtml.join("");
   document.getElementById("title").innerHTML = `<h1>${details.title}</h1>`;

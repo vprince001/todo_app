@@ -124,10 +124,7 @@ const deleteList = function(req, res) {
   userData.todoLists.splice(index, 1);
 
   const userId = userData.USERID;
-  let filePath = `./private_data/${userId}.json`;
-  fs.writeFileSync(filePath, JSON.stringify(userData));
-  res.write(JSON.stringify(userData));
-  res.end();
+  writeData(res);
 };
 
 const addList = function(req, res) {
@@ -139,34 +136,44 @@ const addList = function(req, res) {
   }
 
   let list = new TodoList(listId, listTitle, []);
-  const userName = req.headers.cookie.split("=")[1];
-
   userData.todoLists.unshift(list);
+  writeData(res);
+};
 
-  let filePath = `./private_data/${userName}.json`;
+const writeData = function(res) {
+  const userId = userData.USERID;
+  let filePath = `./private_data/${userId}.json`;
   fs.writeFileSync(filePath, JSON.stringify(userData));
   res.write(JSON.stringify(userData));
   res.end();
+};
+
+const deleteItem = function(req, res) {
+  const { itemId, listId } = JSON.parse(req.body);
+
+  const listIndex = userData.todoLists.findIndex(list => list.id == listId);
+  const itemIndex = userData.todoLists[listIndex].items.findIndex(
+    item => item.id == itemId
+  );
+
+  userData.todoLists[listIndex].items.splice(itemIndex, 1);
+  writeData(res);
 };
 
 const addItem = function(req, res) {
   const { id, desc } = JSON.parse(req.body);
   let itemId = 0;
   const matchedList = userData.todoLists.filter(list => list.id == id)[0];
-
-  if (matchedList.length > 0) itemId = matchedList.id + 1;
-
+  if (matchedList.items.length > 0) {
+    itemId = matchedList.items[0].id + 1;
+  }
   let item = new TodoItem(itemId, desc, true);
 
   let index = userData.todoLists.findIndex(itemDetail => itemDetail.id == id);
 
-  userData.todoLists[index].items.push(item);
+  userData.todoLists[index].items.unshift(item);
 
-  const userId = userData.USERID;
-  let filePath = `./private_data/${userId}.json`;
-  fs.writeFileSync(filePath, JSON.stringify(userData));
-  res.write(JSON.stringify(userData));
-  res.end();
+  writeData(res);
 };
 
 const getUserData = function(req, res, next, send) {
@@ -184,6 +191,7 @@ app.get("/homepage.html", renderHomepage);
 app.post("/addList", addList);
 app.post("/addItem", addItem);
 app.post("/deleteList", deleteList);
+app.post("/deleteItem", deleteItem);
 app.get("/getData", getUserData);
 app.use(provideData);
 
