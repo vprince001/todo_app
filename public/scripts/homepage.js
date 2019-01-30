@@ -1,14 +1,15 @@
 let selectedListId;
 
-const removeCookie = function() {
-  document.cookie = "username=; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
-};
+const deleteItem = function(event) {
+  let itemId = event.target.id;
 
-const deleteItem = function(itemId) {
-  fetchLists("/deleteItem", {
+  fetch("/deleteItem", {
     method: "POST",
     body: JSON.stringify({ itemId: itemId, listId: selectedListId })
-  });
+  })
+    .then(response => response.text())
+    .then(data => getItems(data, selectedListId))
+    .then(details => createItemBox(details));
 };
 
 const addItem = function() {
@@ -48,13 +49,14 @@ const createBodyDiv = function(itemDetails) {
   itemDetails.items.forEach(item => {
     const itemDiv = createHtmlElement("div", "", "", "", "");
     const description = createHtmlElement(
-      "p",
+      "div",
       item.description,
       `item${item.id}`
     );
     const button = createHtmlElement("button", "X", item.id, deleteItem, "");
     itemDiv.appendChild(description);
     itemDiv.appendChild(button);
+    description.style.display = "inline";
     bodyDiv.appendChild(itemDiv);
   });
   return bodyDiv;

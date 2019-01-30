@@ -7,7 +7,9 @@
   <body>
     <div><label>UserId: ___userId___</label></div>
     <div style="position: fixed; right : 20px; top: 10px">
-      <a href="/"> <button onclick="removeCookie()">log out</button> </a>
+      <form action="/logout" method="POST">
+        <button type="submit">logout</button>
+      </form>
     </div>
     <div>
       <label> Add New List here : </label>

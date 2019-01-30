@@ -110,6 +110,7 @@ const setCookie = function(req, res) {
 const renderHomepage = function(req, res) {
   const filePath = getRequest(req.url);
   const userName = req.headers.cookie.split("=")[1];
+
   fs.readFile(filePath, ENCODING, function(err, content) {
     if (err) console.log(err);
     res.write(content.replace("___userId___", userName));
@@ -180,6 +181,13 @@ const getUserData = function(req, res, next, send) {
   send(res, JSON.stringify(userData), 200);
 };
 
+const logUserOut = function(req, res) {
+  let expiryDate = "Thu, 01 Jan 1970 00:00:00 UTC;";
+  res.setHeader("Set-Cookie", `username=;expires=${expiryDate};`);
+  res.writeHead(302, { Location: "/" });
+  res.end();
+};
+
 const app = new App();
 
 app.use(readBody);
@@ -187,7 +195,8 @@ app.get("/", renderMainPage.bind(null, "loginForm"));
 app.get("/signUp", renderMainPage.bind(null, "signUpForm"));
 app.post("/", registerNewUser);
 app.post("/login", logUserIn);
-app.get("/homepage.html", renderHomepage);
+app.post("/logout", logUserOut);
+app.get("/htmls/homepage.html", renderHomepage);
 app.post("/addList", addList);
 app.post("/addItem", addItem);
 app.post("/deleteList", deleteList);
