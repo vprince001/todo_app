@@ -12,28 +12,78 @@ const deleteItem = function(itemId) {
 };
 
 const addItem = function() {
-  const itemDesc = document.getElementById("addItemBox").value;
-
-  fetchItems(selectedListId, "/addItem", {
+  const itemDesc = document.getElementById("addItemTextBox").value;
+  const event = { target: { id: selectedListId } };
+  fetchItems(event, "/addItem", {
     method: "POST",
     body: JSON.stringify({ desc: itemDesc, id: selectedListId })
   });
 };
 
-const createItemBox = function(details) {
-  let items = details.items;
+const createHtmlElement = function(tag, text, id, method, type) {
+  const element = document.createElement(tag);
+  element.innerText = text;
+  element.id = id;
+  element.onclick = method;
+  element.type = type;
+  return element;
+};
 
-  let itemsHtml = items.map(item => {
-    return (
-      "<p>" +
-      item.description +
-      `<button id=${
-        item.id
-      } onclick=deleteItem(event.target.id)> X </button></p>`
+const createHeadDiv = function(itemDetails) {
+  const headDiv = createHtmlElement("div", "", "", "", "");
+  const title = createHtmlElement("h1", itemDetails.title, "", "", "");
+  const description = createHtmlElement("h3", "Description", "", "", "");
+  const inputBox = createHtmlElement("input", "", "addItemTextBox", "", "text");
+  const addItemButton = createHtmlElement("button", "Add", "", addItem, "");
+
+  headDiv.appendChild(title);
+  headDiv.appendChild(description);
+  headDiv.appendChild(inputBox);
+  headDiv.appendChild(addItemButton);
+  return headDiv;
+};
+
+const createBodyDiv = function(itemDetails) {
+  const bodyDiv = createHtmlElement("div", "", "", "", "");
+  itemDetails.items.forEach(item => {
+    const itemDiv = createHtmlElement("div", "", "", "", "");
+    const description = createHtmlElement(
+      "p",
+      item.description,
+      `item${item.id}`
     );
+    const button = createHtmlElement("button", "X", item.id, deleteItem, "");
+    itemDiv.appendChild(description);
+    itemDiv.appendChild(button);
+    bodyDiv.appendChild(itemDiv);
   });
-  document.getElementById("items").innerHTML = itemsHtml.join("");
-  document.getElementById("title").innerHTML = `<h1>${details.title}</h1>`;
+  return bodyDiv;
+};
+
+const createBottomDiv = function() {
+  const bottomDiv = createHtmlElement("div", "", "", "", "");
+  const deleteButton = createHtmlElement(
+    "button",
+    "delete list",
+    "",
+    deleteList,
+    ""
+  );
+  bottomDiv.appendChild(deleteButton);
+  return bottomDiv;
+};
+
+const createItemBox = function(itemDetails) {
+  const itemAreaDiv = document.getElementById("itemArea");
+  itemAreaDiv.innerHTML = "";
+
+  const headDiv = createHeadDiv(itemDetails);
+  const bodyDiv = createBodyDiv(itemDetails);
+  const bottomDiv = createBottomDiv();
+
+  itemAreaDiv.appendChild(headDiv);
+  itemAreaDiv.appendChild(bodyDiv);
+  itemAreaDiv.appendChild(bottomDiv);
 };
 
 const getItems = function(data, clickedListId) {
@@ -44,7 +94,8 @@ const getItems = function(data, clickedListId) {
   return { items: matchedLists[0].items, title: matchedLists[0].title };
 };
 
-const fetchItems = function(clickedListId, url = "/getData", details) {
+const fetchItems = function(event, url = "/getData", details) {
+  clickedListId = event.target.id;
   fetch(url, details)
     .then(response => response.text())
     .then(data => getItems(data, clickedListId))
@@ -53,6 +104,7 @@ const fetchItems = function(clickedListId, url = "/getData", details) {
 
 const deleteList = function() {
   fetchLists("/deleteList", { method: "POST", body: selectedListId });
+  document.getElementById("itemArea").innerHTML = "";
 };
 
 const addList = function() {
@@ -61,14 +113,16 @@ const addList = function() {
 };
 
 const createListsHtml = function(lists) {
-  let listsHtml = lists.map(list => {
-    return (
-      `<p id=${list.id} onclick=fetchItems(event.target.id)>` +
-      list.title +
-      "</p>"
-    );
+  const listAreaDiv = document.getElementById("listArea");
+  listAreaDiv.innerHTML = "";
+
+  lists.forEach(list => {
+    let listDiv = document.createElement("div");
+    listDiv.id = list.id;
+    listDiv.innerText = list.title;
+    listDiv.onclick = fetchItems;
+    listAreaDiv.appendChild(listDiv);
   });
-  return listsHtml.join("");
 };
 
 const getLists = function(data) {
@@ -80,10 +134,7 @@ const fetchLists = function(url, details) {
   fetch(url, details)
     .then(response => response.text())
     .then(data => getLists(data))
-    .then(lists => createListsHtml(lists))
-    .then(
-      listsHtml => (document.getElementById("lists").innerHTML = listsHtml)
-    );
+    .then(lists => createListsHtml(lists));
 };
 
 window.onload = fetchLists.bind(null, "/getData");

@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>User Dashboard</title>
+    <script src="../scripts/homepage.js"></script>
+  </head>
+  <body>
+    <div><label>UserId: ___userId___</label></div>
+    <div style="position: fixed; right : 20px; top: 10px">
+      <a href="/"> <button onclick="removeCookie()">log out</button> </a>
+    </div>
+    <div>
+      <label> Add New List here : </label>
+      <input class="input" type="text" name="listTitle" id="addListBox" />
+      <button onclick="addList()">Add</button>
+    </div>
+    <hr />
+    <div style="display: flex;">
+      <div id="listArea" style="width:100%; border: solid black 1px"></div>
+      <div id="itemArea" style="width: 100%; border: solid black 1px"></div>
+    </div>
+  </body>
+</html>

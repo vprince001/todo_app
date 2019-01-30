@@ -1,4 +1,4 @@
-const INDEXPATH = "./public/index.html";
+const INDEXPATH = "./public/htmls/index.html";
 const ENCODING = "utf8";
 const FORMPLACEHOLDER = "___form___";
 

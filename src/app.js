@@ -97,7 +97,7 @@ const logUserIn = function(req, res) {
 
 const getHomePage = function(req, res) {
   setCookie(req, res);
-  res.writeHead(302, { Location: "/homepage.html" });
+  res.writeHead(302, { Location: "/htmls/homepage.html" });
   res.end();
 };
 

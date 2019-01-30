@@ -33,7 +33,7 @@ describe("provideData", function() {
 
 describe("getRequest", function() {
   it("should return index file path for '/' ", function() {
-    const expected = "./public/index.html";
+    const expected = "./public/htmls/index.html";
     chai.expect(getRequest("/")).to.equal(expected);
   });
 
