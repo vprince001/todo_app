@@ -4,7 +4,7 @@ const form = require("../public/form.js");
 
 const { INDEXPATH, ENCODING, FORMPLACEHOLDER } = require("./constants");
 const { TodoList } = require("./todoList.js");
-const { TodoItem } = require("./todoItem.js");
+const { Item } = require("./model/item.js");
 
 let userData;
 
@@ -123,8 +123,6 @@ const deleteList = function(req, res) {
   let index = userData.todoLists.findIndex(itemDetail => itemDetail.id == id);
 
   userData.todoLists.splice(index, 1);
-
-  const userId = userData.USERID;
   writeData(res);
 };
 
@@ -168,7 +166,7 @@ const addItem = function(req, res) {
   if (matchedList.items.length > 0) {
     itemId = matchedList.items[0].id + 1;
   }
-  let item = new TodoItem(itemId, desc, true);
+  let item = new Item(itemId, desc, false);
 
   let index = userData.todoLists.findIndex(itemDetail => itemDetail.id == id);
 
