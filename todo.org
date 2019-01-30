@@ -25,14 +25,14 @@
   * DONE new item button
   * DONE Add delete item button
   * DONE edit item
-  * Add mark/unmark item buttom
+  * DONE mark/unmark item buttom
   * DONE save button
 
 * DONE handle login
   * DONE Userid authentication
   * DONE password authentication
   * DONE redirect to homepage
-  * TODO check for cookies
+  * TODO check for cookies     //if cookie is set, redirect to homepage
   * DONE save cookies
   * DONE clear cookies on logout
 

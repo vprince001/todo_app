@@ -72,7 +72,12 @@ const createBodyDiv = function(itemDetails) {
       editItem,
       ""
     );
+    const checkBox = createHtmlElement("input", "", "", "", "checkbox");
+    checkBox.className = "checkBoxes";
+    checkBox.checked = item.status;
+
     const button = createHtmlElement("button", "X", item.id, deleteItem);
+    itemDiv.appendChild(checkBox);
     itemDiv.appendChild(description);
     itemDiv.appendChild(button);
     description.style.display = "inline";
@@ -82,13 +87,20 @@ const createBodyDiv = function(itemDetails) {
 };
 
 const saveItems = function() {
+  let checkBoxes = Object.values(document.getElementsByClassName("checkBoxes"));
+  let allCheckBoxes = checkBoxes.map(checkBox => checkBox.checked);
+
   let editedItems = Object.values(document.getElementsByTagName("textArea"));
   let editedValues = editedItems.map(item => {
     return { id: item.id, value: item.value };
   });
   let details = {
     method: "POST",
-    body: JSON.stringify({ editedItems: editedValues, listId: selectedListId })
+    body: JSON.stringify({
+      editedItems: editedValues,
+      listId: selectedListId,
+      checkBoxes: allCheckBoxes
+    })
   };
   fetch("/saveItems", details)
     .then(response => response.text())

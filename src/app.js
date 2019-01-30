@@ -189,7 +189,7 @@ const logUserOut = function(req, res) {
 };
 
 const saveItems = function(req, res) {
-  const { editedItems, listId } = JSON.parse(req.body);
+  const { editedItems, listId, checkBoxes } = JSON.parse(req.body);
 
   const listIndex = userData.todoLists.findIndex(list => list.id == listId);
   const savedItems = userData.todoLists[listIndex].items;
@@ -203,6 +203,13 @@ const saveItems = function(req, res) {
       }
     });
   });
+
+  let index = 0;
+  savedItems.map(savedItem => {
+    savedItem.status = checkBoxes[index];
+    index++;
+  });
+
   userData.todoLists[listIndex].items = savedItems;
   writeData(res);
 };
