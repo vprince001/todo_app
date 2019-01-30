@@ -24,9 +24,9 @@
   * DONE show items
   * DONE new item button
   * DONE Add delete item button
-  * Add edit item button
+  * DONE edit item
   * Add mark/unmark item buttom
-  * Add save button
+  * DONE save button
 
 * DONE handle login
   * DONE Userid authentication

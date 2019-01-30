@@ -188,6 +188,25 @@ const logUserOut = function(req, res) {
   res.end();
 };
 
+const saveItems = function(req, res) {
+  const { editedItems, listId } = JSON.parse(req.body);
+
+  const listIndex = userData.todoLists.findIndex(list => list.id == listId);
+  const savedItems = userData.todoLists[listIndex].items;
+
+  editedItems.map(editedItem => {
+    let editedItemId = editedItem.id.substring(4);
+
+    savedItems.map(savedItem => {
+      if (savedItem.id == editedItemId) {
+        savedItem.description = editedItem.value;
+      }
+    });
+  });
+  userData.todoLists[listIndex].items = savedItems;
+  writeData(res);
+};
+
 const app = new App();
 
 app.use(readBody);
@@ -201,6 +220,7 @@ app.post("/addList", addList);
 app.post("/addItem", addItem);
 app.post("/deleteList", deleteList);
 app.post("/deleteItem", deleteItem);
+app.post("/saveItems", saveItems);
 app.get("/getData", getUserData);
 app.use(provideData);
 

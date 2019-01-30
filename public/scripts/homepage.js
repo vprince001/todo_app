@@ -21,7 +21,13 @@ const addItem = function() {
   });
 };
 
-const createHtmlElement = function(tag, text, id, method, type) {
+const createHtmlElement = function(
+  tag,
+  text = "",
+  id = "",
+  method = "",
+  type = ""
+) {
   const element = document.createElement(tag);
   element.innerText = text;
   element.id = id;
@@ -31,11 +37,11 @@ const createHtmlElement = function(tag, text, id, method, type) {
 };
 
 const createHeadDiv = function(itemDetails) {
-  const headDiv = createHtmlElement("div", "", "", "", "");
-  const title = createHtmlElement("h1", itemDetails.title, "", "", "");
-  const description = createHtmlElement("h3", "Description", "", "", "");
+  const headDiv = createHtmlElement("div");
+  const title = createHtmlElement("h1", itemDetails.title);
+  const description = createHtmlElement("h3", "Description");
   const inputBox = createHtmlElement("input", "", "addItemTextBox", "", "text");
-  const addItemButton = createHtmlElement("button", "Add", "", addItem, "");
+  const addItemButton = createHtmlElement("button", "Add", "", addItem);
 
   headDiv.appendChild(title);
   headDiv.appendChild(description);
@@ -44,16 +50,29 @@ const createHeadDiv = function(itemDetails) {
   return headDiv;
 };
 
+const editItem = function() {
+  const id = event.target.id;
+
+  const descDiv = document.getElementById(id);
+  const text = descDiv.innerText;
+
+  const itemDiv = descDiv.parentElement;
+  const textBox = createHtmlElement("textArea", text, id);
+  itemDiv.replaceChild(textBox, descDiv);
+};
+
 const createBodyDiv = function(itemDetails) {
-  const bodyDiv = createHtmlElement("div", "", "", "", "");
+  const bodyDiv = createHtmlElement("div");
   itemDetails.items.forEach(item => {
-    const itemDiv = createHtmlElement("div", "", "", "", "");
+    const itemDiv = createHtmlElement("div");
     const description = createHtmlElement(
       "div",
       item.description,
-      `item${item.id}`
+      `item${item.id}`,
+      editItem,
+      ""
     );
-    const button = createHtmlElement("button", "X", item.id, deleteItem, "");
+    const button = createHtmlElement("button", "X", item.id, deleteItem);
     itemDiv.appendChild(description);
     itemDiv.appendChild(button);
     description.style.display = "inline";
@@ -62,15 +81,31 @@ const createBodyDiv = function(itemDetails) {
   return bodyDiv;
 };
 
+const saveItems = function() {
+  let editedItems = Object.values(document.getElementsByTagName("textArea"));
+  let editedValues = editedItems.map(item => {
+    return { id: item.id, value: item.value };
+  });
+  let details = {
+    method: "POST",
+    body: JSON.stringify({ editedItems: editedValues, listId: selectedListId })
+  };
+  fetch("/saveItems", details)
+    .then(response => response.text())
+    .then(data => getItems(data, selectedListId))
+    .then(details => createItemBox(details));
+};
+
 const createBottomDiv = function() {
-  const bottomDiv = createHtmlElement("div", "", "", "", "");
+  const bottomDiv = createHtmlElement("div");
+  const saveButton = createHtmlElement("button", "Save", "", saveItems);
   const deleteButton = createHtmlElement(
     "button",
-    "delete list",
+    "Delete list",
     "",
-    deleteList,
-    ""
+    deleteList
   );
+  bottomDiv.appendChild(saveButton);
   bottomDiv.appendChild(deleteButton);
   return bottomDiv;
 };
