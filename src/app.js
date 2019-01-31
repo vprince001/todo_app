@@ -66,33 +66,25 @@ const renderMainPage = function(nameOfForm, req, res) {
   });
 };
 
-const verifyUserId = function(filePath) {
-  return fs.existsSync(filePath);
-};
-
-const verifyPassword = function(filePath, PASSWORD) {
-  let content = fs.readFileSync(filePath, ENCODING);
-  const expectedPassword = JSON.parse(content).PASSWORD;
-  return PASSWORD == expectedPassword;
-};
-
 const logUserIn = function(req, res) {
   const { USERID, PASSWORD } = parseLoginData(req);
   const filePath = `./private_data/${USERID}.json`;
 
-  if (!verifyUserId(filePath)) {
+  if (!fs.existsSync(filePath)) {
     res.write("Account doesn't exist");
     res.end();
     return;
   }
 
-  if (!verifyPassword(filePath, PASSWORD)) {
-    res.write("Wrong Password");
-    res.end();
-    return;
-  }
-  userData = JSON.parse(fs.readFileSync(filePath, ENCODING));
-  getHomePage(req, res);
+  fs.readFile(filePath, (err, content) => {
+    userData = JSON.parse(content);
+    if (PASSWORD != userData.PASSWORD) {
+      res.write("Wrong Password");
+      res.end();
+      return;
+    }
+    getHomePage(req, res);
+  });
 };
 
 const getHomePage = function(req, res) {
@@ -142,9 +134,11 @@ const addList = function(req, res) {
 const writeData = function(res) {
   const userId = userData.USERID;
   let filePath = `./private_data/${userId}.json`;
-  fs.writeFileSync(filePath, JSON.stringify(userData));
-  res.write(JSON.stringify(userData));
-  res.end();
+  fs.writeFile(filePath, JSON.stringify(userData), err => {
+    if (err) throw err;
+    res.write(JSON.stringify(userData));
+    res.end();
+  });
 };
 
 const deleteItem = function(req, res) {
