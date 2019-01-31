@@ -1,40 +1,20 @@
-* DONE add functionality on signup to save data to a json file
-* DONE change signup form to login form on submit click.
-* DONE display user name already taken message.
-* DONE make tests for provideData function.
-* TODO make tests for app and framework.
-* TODO create homepage.
+* Handle multiple users using sessions
+* implement classes
 
 * signup
   * Name
   * confirm password
 
 * homepage
-  * Name
-  * DONE User ID
-  * DONE logout button
-  * DONE show lists in listnames box
-  * DONE Add new List button
-  * DONE Add delete list button
+  * add description
+  * edit description
 
-* todo list page
-  * DONE show title
+* todo list box
   * edit title
-  * DONE logout button
-  * DONE show items
-  * DONE new item button
-  * DONE Add delete item button
-  * DONE edit item
-  * DONE mark/unmark item buttom
-  * DONE save button
-
-* DONE handle login
-  * DONE Userid authentication
-  * DONE password authentication
-  * DONE redirect to homepage
+  
+* TODO handle login
   * TODO check for cookies     //if cookie is set, redirect to homepage
-  * DONE save cookies
-  * DONE clear cookies on logout
 
 * Fix Issues
   * On authentication error take proper action
+  

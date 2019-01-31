@@ -8,6 +8,29 @@ const { Item } = require("./model/item.js");
 
 let userData;
 
+//-------------------------Server Handlers-------------------------//
+
+const serveStaticFiles = function(req, res, next, send) {
+  let path = getRequest(req.url);
+  fs.readFile(path, (err, content) => {
+    if (err) {
+      send(res, err, 404);
+      return;
+    }
+    send(res, content, 200);
+  });
+};
+
+const getUserData = function(req, res, next, send) {
+  send(res, JSON.stringify(userData), 200);
+};
+
+const setCookie = function(req, res) {
+  if (!req.headers.cookie) {
+    res.setHeader("Set-Cookie", `username=${userData.USERID}`);
+  }
+};
+
 const readBody = function(req, res, next) {
   let content = "";
   req.on("data", chunk => (content += chunk));
@@ -22,16 +45,136 @@ const getRequest = function(url) {
   return "./public" + url;
 };
 
-const provideData = function(req, res, next, send) {
-  let path = getRequest(req.url);
-  fs.readFile(path, (err, content) => {
-    if (err) {
-      send(res, err, 404);
+//-------------------------TODO Handlers-------------------------//
+
+const writeData = function(res) {
+  const userId = userData.USERID;
+  let filePath = `./private_data/${userId}.json`;
+  fs.writeFile(filePath, JSON.stringify(userData), err => {
+    if (err) throw err;
+    res.write(JSON.stringify(userData));
+    res.end();
+  });
+};
+
+const logUserOut = function(req, res) {
+  let expiryDate = "Thu, 01 Jan 1970 00:00:00 UTC;";
+  res.setHeader("Set-Cookie", `username=;expires=${expiryDate};`);
+  res.writeHead(302, { Location: "/" });
+  res.end();
+};
+
+const deleteItem = function(req, res) {
+  const { itemId, listId } = JSON.parse(req.body);
+
+  const listIndex = userData.todoLists.findIndex(list => list.id == listId);
+  const itemIndex = userData.todoLists[listIndex].items.findIndex(
+    item => item.id == itemId
+  );
+
+  userData.todoLists[listIndex].items.splice(itemIndex, 1);
+  writeData(res);
+};
+
+const saveItems = function(req, res) {
+  const { editedItems, listId, checkBoxes } = JSON.parse(req.body);
+
+  const listIndex = userData.todoLists.findIndex(list => list.id == listId);
+  const savedItems = userData.todoLists[listIndex].items;
+
+  editedItems.map(editedItem => {
+    let editedItemId = editedItem.id.substring(4);
+
+    savedItems.map(savedItem => {
+      if (savedItem.id == editedItemId) {
+        savedItem.description = editedItem.value;
+      }
+    });
+  });
+
+  let index = 0;
+  savedItems.map(savedItem => {
+    savedItem.status = checkBoxes[index];
+    index++;
+  });
+
+  userData.todoLists[listIndex].items = savedItems;
+  writeData(res);
+};
+
+const addItem = function(req, res) {
+  const { id, desc } = JSON.parse(req.body);
+  let itemId = 0;
+  const matchedList = userData.todoLists.filter(list => list.id == id)[0];
+  if (matchedList.items.length > 0) {
+    itemId = matchedList.items[0].id + 1;
+  }
+  let item = new Item(itemId, desc, false);
+
+  let index = userData.todoLists.findIndex(itemDetail => itemDetail.id == id);
+
+  userData.todoLists[index].items.unshift(item);
+
+  writeData(res);
+};
+
+const deleteList = function(req, res) {
+  const id = req.body;
+  let index = userData.todoLists.findIndex(itemDetail => itemDetail.id == id);
+
+  userData.todoLists.splice(index, 1);
+  writeData(res);
+};
+
+const addList = function(req, res) {
+  const listTitle = req.body;
+  let listId = 0;
+
+  if (userData.todoLists.length > 0) {
+    listId = userData.todoLists[0].id + 1;
+  }
+
+  let list = new TodoList(listId, listTitle, []);
+  userData.todoLists.unshift(list);
+  writeData(res);
+};
+
+const renderHomepage = function(req, res) {
+  const filePath = getRequest(req.url);
+  const userName = req.headers.cookie.split("=")[1];
+
+  fs.readFile(filePath, ENCODING, function(err, content) {
+    if (err) console.log(err);
+    res.write(content.replace("___userId___", userName));
+    res.end();
+  });
+};
+
+const getHomePage = function(req, res) {
+  setCookie(req, res);
+  res.writeHead(302, { Location: "/htmls/homepage.html" });
+  res.end();
+};
+
+const logUserIn = function(req, res) {
+  const { USERID, PASSWORD } = parseLoginData(req);
+  const filePath = `./private_data/${USERID}.json`;
+
+  if (!fs.existsSync(filePath)) {
+    res.write("Account doesn't exist");
+    res.end();
+    return;
+  }
+
+  fs.readFile(filePath, (err, content) => {
+    userData = JSON.parse(content);
+    if (PASSWORD != userData.PASSWORD) {
+      res.write("Wrong Password");
+      res.end();
       return;
     }
-    send(res, content, 200);
+    getHomePage(req, res);
   });
-  next();
 };
 
 const parseData = function(content, index) {
@@ -66,146 +209,6 @@ const renderMainPage = function(nameOfForm, req, res) {
   });
 };
 
-const logUserIn = function(req, res) {
-  const { USERID, PASSWORD } = parseLoginData(req);
-  const filePath = `./private_data/${USERID}.json`;
-
-  if (!fs.existsSync(filePath)) {
-    res.write("Account doesn't exist");
-    res.end();
-    return;
-  }
-
-  fs.readFile(filePath, (err, content) => {
-    userData = JSON.parse(content);
-    if (PASSWORD != userData.PASSWORD) {
-      res.write("Wrong Password");
-      res.end();
-      return;
-    }
-    getHomePage(req, res);
-  });
-};
-
-const getHomePage = function(req, res) {
-  setCookie(req, res);
-  res.writeHead(302, { Location: "/htmls/homepage.html" });
-  res.end();
-};
-
-const setCookie = function(req, res) {
-  if (!req.headers.cookie) {
-    res.setHeader("Set-Cookie", `username=${userData.USERID}`);
-  }
-};
-
-const renderHomepage = function(req, res) {
-  const filePath = getRequest(req.url);
-  const userName = req.headers.cookie.split("=")[1];
-
-  fs.readFile(filePath, ENCODING, function(err, content) {
-    if (err) console.log(err);
-    res.write(content.replace("___userId___", userName));
-    res.end();
-  });
-};
-
-const deleteList = function(req, res) {
-  const id = req.body;
-  let index = userData.todoLists.findIndex(itemDetail => itemDetail.id == id);
-
-  userData.todoLists.splice(index, 1);
-  writeData(res);
-};
-
-const addList = function(req, res) {
-  const listTitle = req.body;
-  let listId = 0;
-
-  if (userData.todoLists.length > 0) {
-    listId = userData.todoLists[0].id + 1;
-  }
-
-  let list = new TodoList(listId, listTitle, []);
-  userData.todoLists.unshift(list);
-  writeData(res);
-};
-
-const writeData = function(res) {
-  const userId = userData.USERID;
-  let filePath = `./private_data/${userId}.json`;
-  fs.writeFile(filePath, JSON.stringify(userData), err => {
-    if (err) throw err;
-    res.write(JSON.stringify(userData));
-    res.end();
-  });
-};
-
-const deleteItem = function(req, res) {
-  const { itemId, listId } = JSON.parse(req.body);
-
-  const listIndex = userData.todoLists.findIndex(list => list.id == listId);
-  const itemIndex = userData.todoLists[listIndex].items.findIndex(
-    item => item.id == itemId
-  );
-
-  userData.todoLists[listIndex].items.splice(itemIndex, 1);
-  writeData(res);
-};
-
-const addItem = function(req, res) {
-  const { id, desc } = JSON.parse(req.body);
-  let itemId = 0;
-  const matchedList = userData.todoLists.filter(list => list.id == id)[0];
-  if (matchedList.items.length > 0) {
-    itemId = matchedList.items[0].id + 1;
-  }
-  let item = new Item(itemId, desc, false);
-
-  let index = userData.todoLists.findIndex(itemDetail => itemDetail.id == id);
-
-  userData.todoLists[index].items.unshift(item);
-
-  writeData(res);
-};
-
-const getUserData = function(req, res, next, send) {
-  send(res, JSON.stringify(userData), 200);
-};
-
-const logUserOut = function(req, res) {
-  let expiryDate = "Thu, 01 Jan 1970 00:00:00 UTC;";
-  res.setHeader("Set-Cookie", `username=;expires=${expiryDate};`);
-  res.writeHead(302, { Location: "/" });
-  res.end();
-};
-
-const saveItems = function(req, res) {
-  const { editedItems, listId, checkBoxes } = JSON.parse(req.body);
-
-  const listIndex = userData.todoLists.findIndex(list => list.id == listId);
-  const savedItems = userData.todoLists[listIndex].items;
-
-  editedItems.map(editedItem => {
-    let editedItemId = editedItem.id.substring(4);
-
-    savedItems.map(savedItem => {
-      if (savedItem.id == editedItemId) {
-        savedItem.description = editedItem.value;
-      }
-    });
-  });
-
-  let index = 0;
-  savedItems.map(savedItem => {
-    savedItem.status = checkBoxes[index];
-    index++;
-  });
-
-  userData.todoLists[listIndex].items = savedItems;
-  writeData(res);
-};
-
 const app = new App();
 
 app.use(readBody);
@@ -221,13 +224,14 @@ app.post("/deleteList", deleteList);
 app.post("/deleteItem", deleteItem);
 app.post("/saveItems", saveItems);
 app.get("/getData", getUserData);
-app.use(provideData);
+
+app.use(serveStaticFiles);
 
 const handleRequest = app.handleRequest.bind(app);
 
 module.exports = {
   handleRequest,
-  provideData,
+  provideData: serveStaticFiles,
   getRequest,
   parseData,
   parseLoginData,
