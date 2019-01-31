@@ -5,32 +5,22 @@
   * Name
   * confirm password
 
-* homepage
+* TODO homepage
   * add description
   * edit description
-
-* todo list box
-  * edit title
   
-* TODO handle login
-  * TODO check for cookies     //if cookie is set, redirect to homepage
+* handle login
+  * check for cookies     //if cookie is set, redirect to homepage
 
 * Fix Issues
   * On authentication error take proper action
   * filename should be in same in case
-  * map hatao forEach lagao 79-93
   * setStatus should be changed to toggleStatus
 
 * Class implementation
-  * DONE Item class
-    * DONE editDescription
-    * DONE toggleStatus
-
+  
   * Todo class
-    * editTitle
     * editDescription
-    * AddItem
-    * deleteItem
 
   * User class
     * addTodo

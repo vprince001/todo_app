@@ -3,7 +3,7 @@ const { App } = require("./frameWork.js");
 const form = require("../public/form.js");
 
 const { INDEXPATH, ENCODING, FORMPLACEHOLDER } = require("./constants");
-const { TodoList } = require("./todoList.js");
+const { Todo } = require("./model/todo.js");
 const { Item } = require("./model/item.js");
 
 let userData;
@@ -68,16 +68,14 @@ const deleteItem = function(req, res) {
   const { itemId, listId } = JSON.parse(req.body);
 
   const listIndex = userData.todoLists.findIndex(list => list.id == listId);
-  const itemIndex = userData.todoLists[listIndex].items.findIndex(
-    item => item.id == itemId
-  );
-
-  userData.todoLists[listIndex].items.splice(itemIndex, 1);
+  userData.todoLists[listIndex].deleteItem(itemId);
   writeData(res);
 };
 
 const saveItems = function(req, res) {
-  const { editedItems, listId, checkBoxes } = JSON.parse(req.body);
+  const { listId, newTitle, checkBoxesStatus, editedItems } = JSON.parse(
+    req.body
+  );
 
   const listIndex = userData.todoLists.findIndex(list => list.id == listId);
   const savedItems = userData.todoLists[listIndex].items;
@@ -94,32 +92,27 @@ const saveItems = function(req, res) {
 
   let index = 0;
   savedItems.forEach(savedItem => {
-    savedItem.setStatus(checkBoxes[index]);
+    savedItem.setStatus(checkBoxesStatus[index]);
     index++;
   });
 
+  userData.todoLists[listIndex].editTitle(newTitle);
   userData.todoLists[listIndex].items = savedItems;
   writeData(res);
 };
 
 const addItem = function(req, res) {
   const { id, desc } = JSON.parse(req.body);
-  let item = new Object();
-  item.id = 0;
-  item.description = desc;
-  item.status = false;
+  let item = { id: 0, description: desc, status: false };
 
   const matchedList = userData.todoLists.filter(list => list.id == id)[0];
   if (matchedList.items.length > 0) {
     item.id = matchedList.items[0].id + 1;
   }
+  let listIndex = userData.todoLists.findIndex(item => item.id == id);
 
   let newItem = new Item(item);
-
-  let index = userData.todoLists.findIndex(itemDetail => itemDetail.id == id);
-
-  userData.todoLists[index].items.unshift(newItem);
-
+  userData.todoLists[listIndex].addItem(newItem);
   writeData(res);
 };
 
@@ -132,14 +125,22 @@ const deleteList = function(req, res) {
 };
 
 const addList = function(req, res) {
-  const listTitle = req.body;
-  let listId = 0;
+  const { listTitle, listDescription } = JSON.parse(req.body);
 
+  let listId = 0;
   if (userData.todoLists.length > 0) {
     listId = userData.todoLists[0].id + 1;
   }
 
-  let list = new TodoList(listId, listTitle, []);
+  const todo = {
+    id: listId,
+    title: listTitle,
+    description: listDescription,
+    items: []
+  };
+
+  let list = new Todo(todo);
+
   userData.todoLists.unshift(list);
   writeData(res);
 };
@@ -173,6 +174,7 @@ const logUserIn = function(req, res) {
 
   fs.readFile(filePath, (err, content) => {
     userData = JSON.parse(content);
+
     if (PASSWORD != userData.PASSWORD) {
       res.write("Wrong Password");
       res.end();
@@ -180,12 +182,13 @@ const logUserIn = function(req, res) {
     }
 
     if (userData.todoLists.length) {
+      userData.todoLists = userData.todoLists.map(list => new Todo(list));
+
       userData.todoLists = userData.todoLists.map(list => {
         list.items = list.items.map(item => new Item(item));
         return list;
       });
     }
-
     getHomePage(req, res);
   });
 };

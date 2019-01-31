@@ -36,10 +36,44 @@ const createHtmlElement = function(
   return element;
 };
 
+const changeTodoDescription = function() {
+  const description = document.getElementById("todoDescription").innerText;
+
+  console.log(",,,,,,,>", description);
+};
+
+const changeTodoTitle = function() {
+  const titleDiv = document.getElementById("todoTitle");
+  const text = titleDiv.innerText;
+
+  const parentDiv = titleDiv.parentElement;
+  const inputBox = createHtmlElement(
+    "input",
+    "",
+    "todoTitleTextBox",
+    "",
+    "text"
+  );
+  inputBox.value = text;
+  parentDiv.replaceChild(inputBox, titleDiv);
+};
+
 const createHeadDiv = function(itemDetails) {
   const headDiv = createHtmlElement("div");
-  const title = createHtmlElement("h1", itemDetails.title);
-  const description = createHtmlElement("h3", "Description");
+  const title = createHtmlElement(
+    "h1",
+    itemDetails.title,
+    "todoTitle",
+    changeTodoTitle
+  );
+
+  const description = createHtmlElement(
+    "h3",
+    itemDetails.description,
+    "todoDescription",
+    changeTodoDescription
+  );
+
   const inputBox = createHtmlElement("input", "", "addItemTextBox", "", "text");
   const addItemButton = createHtmlElement("button", "Add", "", addItem);
 
@@ -87,21 +121,29 @@ const createBodyDiv = function(itemDetails) {
 };
 
 const saveItems = function() {
-  let checkBoxes = Object.values(document.getElementsByClassName("checkBoxes"));
-  let allCheckBoxes = checkBoxes.map(checkBox => checkBox.checked);
+  const checkBoxes = Object.values(
+    document.getElementsByClassName("checkBoxes")
+  );
+  const checkBoxesStatus = checkBoxes.map(checkBox => checkBox.checked);
 
-  let editedItems = Object.values(document.getElementsByTagName("textArea"));
-  let editedValues = editedItems.map(item => {
+  const editedItems = Object.values(document.getElementsByTagName("textArea"));
+  const editedItemValues = editedItems.map(item => {
     return { id: item.id, value: item.value };
   });
+
+  const newTitle = document.getElementById("todoTitleTextBox").value;
+
   let details = {
     method: "POST",
     body: JSON.stringify({
-      editedItems: editedValues,
       listId: selectedListId,
-      checkBoxes: allCheckBoxes
+      newTitle: newTitle,
+      checkBoxesStatus: checkBoxesStatus,
+      editedItems: editedItemValues
     })
   };
+
+  fetchLists("/getData");
   fetch("/saveItems", details)
     .then(response => response.text())
     .then(data => getItems(data, selectedListId))
@@ -140,7 +182,11 @@ const getItems = function(data, clickedListId) {
   const matchedLists = todoLists.filter(list => list.id == clickedListId);
 
   selectedListId = +matchedLists[0].id;
-  return { items: matchedLists[0].items, title: matchedLists[0].title };
+  return {
+    items: matchedLists[0].items,
+    description: matchedLists[0].description,
+    title: matchedLists[0].title
+  };
 };
 
 const fetchItems = function(event, url = "/getData", details) {
@@ -157,8 +203,13 @@ const deleteList = function() {
 };
 
 const addList = function() {
-  const listTitle = document.getElementById("addListBox").value;
-  fetchLists("/addList", { method: "POST", body: listTitle });
+  const listTitle = document.getElementById("todoTitleBox").value;
+  const listDescription = document.getElementById("todoDescriptionBox").value;
+
+  fetchLists("/addList", {
+    method: "POST",
+    body: JSON.stringify({ listTitle, listDescription })
+  });
 };
 
 const createListsHtml = function(lists) {
