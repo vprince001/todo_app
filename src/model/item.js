@@ -1,16 +1,16 @@
 class Item {
-  constructor(id, description, status) {
+  constructor(item) {
+    this.description = item.description || "";
+    this.status = item.status;
+    this.id = item.id;
+  }
+
+  setStatus(isDone) {
+    this.status = isDone;
+  }
+
+  setDescription(description) {
     this.description = description;
-    this.status = status;
-    this.id = id;
-  }
-
-  toggleStatus() {
-    this.status = !this.status;
-  }
-
-  editDescription(newDescription) {
-    this.description = newDescription;
   }
 }
 

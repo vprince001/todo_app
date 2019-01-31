@@ -82,19 +82,19 @@ const saveItems = function(req, res) {
   const listIndex = userData.todoLists.findIndex(list => list.id == listId);
   const savedItems = userData.todoLists[listIndex].items;
 
-  editedItems.map(editedItem => {
+  editedItems.forEach(editedItem => {
     let editedItemId = editedItem.id.substring(4);
 
-    savedItems.map(savedItem => {
+    savedItems.forEach(savedItem => {
       if (savedItem.id == editedItemId) {
-        savedItem.description = editedItem.value;
+        savedItem.setDescription(editedItem.value);
       }
     });
   });
 
   let index = 0;
-  savedItems.map(savedItem => {
-    savedItem.status = checkBoxes[index];
+  savedItems.forEach(savedItem => {
+    savedItem.setStatus(checkBoxes[index]);
     index++;
   });
 
@@ -104,16 +104,21 @@ const saveItems = function(req, res) {
 
 const addItem = function(req, res) {
   const { id, desc } = JSON.parse(req.body);
-  let itemId = 0;
+  let item = new Object();
+  item.id = 0;
+  item.description = desc;
+  item.status = false;
+
   const matchedList = userData.todoLists.filter(list => list.id == id)[0];
   if (matchedList.items.length > 0) {
-    itemId = matchedList.items[0].id + 1;
+    item.id = matchedList.items[0].id + 1;
   }
-  let item = new Item(itemId, desc, false);
+
+  let newItem = new Item(item);
 
   let index = userData.todoLists.findIndex(itemDetail => itemDetail.id == id);
 
-  userData.todoLists[index].items.unshift(item);
+  userData.todoLists[index].items.unshift(newItem);
 
   writeData(res);
 };
@@ -173,6 +178,14 @@ const logUserIn = function(req, res) {
       res.end();
       return;
     }
+
+    if (userData.todoLists.length) {
+      userData.todoLists = userData.todoLists.map(list => {
+        list.items = list.items.map(item => new Item(item));
+        return list;
+      });
+    }
+
     getHomePage(req, res);
   });
 };
