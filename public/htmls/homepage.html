@@ -3,30 +3,50 @@
   <head>
     <title>User Dashboard</title>
     <script src="../scripts/homepage.js"></script>
+    <link rel="stylesheet" href="/stylesheets/homepage.css" />
+    <link
+      href="https://fonts.googleapis.com/css?family=KoHo"
+      rel="stylesheet"
+    />
   </head>
   <body>
-    <div><label>UserId: ___userId___</label></div>
-    <div style="position: fixed; right : 20px; top: 10px">
-      <form action="/logout" method="POST">
-        <button type="submit">logout</button>
-      </form>
-    </div>
-    <div>
-      <label> Add Todo Title : </label>
-      <input class="input" type="text" name="listTitle" id="todoTitleBox" />
-      <label> Description : </label>
-      <input
-        class="input"
-        type="text"
-        name="listDescription"
-        id="todoDescriptionBox"
-      />
-      <button onclick="addList()">Add</button>
-    </div>
-    <hr />
-    <div style="display: flex;">
-      <div id="listArea" style="width:100%; border: solid black 1px"></div>
-      <div id="itemArea" style="width: 100%; border: solid black 1px"></div>
-    </div>
+    <main>
+      <header>
+        <p>Hello ___userId___ !</p>
+        <form id="logout-button" action="/logout" method="POST">
+          <button type="submit">logout</button>
+        </form>
+      </header>
+
+      <section>
+        <div class="add-todo-section">
+          <div>
+            <label> Add Todo Title : </label>
+            <input
+              class="input"
+              type="text"
+              name="listTitle"
+              id="todoTitleBox"
+              required
+            />
+          </div>
+          <div>
+            <label> Description : </label>
+            <input
+              class="input"
+              type="text"
+              name="listDescription"
+              id="todoDescriptionBox"
+              size="60"
+            />
+          </div>
+          <button onclick="addList()">Add</button>
+        </div>
+        <div class="dashboard">
+          <div id="listArea"></div>
+          <div id="itemArea"></div>
+        </div>
+      </section>
+    </main>
   </body>
 </html>

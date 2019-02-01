@@ -1,62 +1,41 @@
 const form = {
-  loginForm: `<h3 style = "text-align: center"> Login </h3>
-  <form method="POST" action="/login"> 
-    <label>Name </label>
-    <input
-      class="input"
-      type="text"
-      placeholder="Enter Your Name Here"
-      name="name"
-    />
-    <br />
-    <label>Password </label>
-    <input
-      class="input"
-      type="password"
-      placeholder="Enter Your Password Here"
-      name="password"
-    />
-    <br />
-    <button>Login</button>
-  </form>
-  <a href="/signUp"> Click here to Sign Up</a>`,
-  signUpForm: `<h3 style = "text-align: center"> Sign up </h3>
+  loginForm: `<header>My Todo App</header>
+  <section>
+    <div class="login-box">
+      <div class="form-title">Login</div>
+      <form method="POST" action="/login">
+        <input type="text" placeholder="UserId" name="name" />
+        <input type="password" placeholder="Password" name="password" />
+        <button>Login </button>
+      </form>
+      <div class="signUp-link">
+       <a href="/signUp"> Create Account</a>
+      </div>
+    </div>
+  </section>`,
+  signUpForm: `<header>My Todo App</header>
+  <section>
+    <div class="login-box">
+      <div class="form-title">Sign Up</div>
       <form method="POST" action="/">
-        <label>User ID </label>
-        <input
-          type="text"
-          placeholder="User ID"
-          name="UserId"
-        />
-        <br />
-        <label>Password </label>
-        <input
-          type="password"
-          placeholder="Enter Your Password Here"
-          name="password"
-        />
-        <br />
-        <button type="submit">Submit</button>    
-  </form>`,
-  userNameError: `<h3 style = "text-align: center"> Sign up </h3>
-  <p> Sorry, Username already exists. Try a new one. </P>
+        <input type="text" placeholder="UserId" name="name" />
+        <input type="password" placeholder="Password" name="password" />
+        <button>Sign Up</button>
+      </form>
+    </div>
+  </section>`,
+  userNameError: `<header>My Todo App</header>
+  <section>
+    <div class="login-box">
+      <div class="form-title">Sign Up</div>
       <form method="POST" action="/">
-        <label>User ID </label>
-        <input
-          type="text"
-          placeholder="User ID"
-          name="UserId"
-        />
-        <br />
-        <label>Password </label>
-        <input
-          type="password"
-          placeholder="Enter Your Password Here"
-          name="password"
-        />
-        <br />
-        <button type="submit">Submit</button>    
-  </form>`
+        <input type="text" placeholder="UserId" name="name" />
+        <input type="password" placeholder="Password" name="password" />
+        <button>Sign Up</button>
+      </form>
+      <span class = "errorMsg"> Sorry, UserName already exists </span>
+    </div>
+  </section>`
 };
 
 module.exports = form;

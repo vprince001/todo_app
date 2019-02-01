@@ -66,6 +66,9 @@ const changeTodoTitle = function() {
 
 const createHeadDiv = function(itemDetails) {
   const headDiv = createHtmlElement("div");
+  const titleDiv = createHtmlElement("div");
+  const descriptionDiv = createHtmlElement("div");
+
   const title = createHtmlElement(
     "h1",
     itemDetails.title,
@@ -88,8 +91,11 @@ const createHeadDiv = function(itemDetails) {
   const inputBox = createHtmlElement("input", "", "addItemTextBox", "", "text");
   const addItemButton = createHtmlElement("button", "Add", "", addItem);
 
-  headDiv.appendChild(title);
-  headDiv.appendChild(description);
+  titleDiv.appendChild(title);
+  headDiv.appendChild(titleDiv);
+
+  descriptionDiv.appendChild(description);
+  headDiv.appendChild(descriptionDiv);
   headDiv.appendChild(inputBox);
   headDiv.appendChild(addItemButton);
   return headDiv;
@@ -241,6 +247,7 @@ const createListsHtml = function(lists) {
     listDiv.id = list.id;
     listDiv.innerText = list.title;
     listDiv.onclick = fetchItems;
+    listDiv.className = "todo";
     listAreaDiv.appendChild(listDiv);
   });
 };

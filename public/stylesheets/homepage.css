@@ -1,0 +1,67 @@
+main {
+  height: 100%;
+  width: 100%;
+  position: absolute;
+}
+
+header {
+  width: 100%;
+  height: 10%;
+  font-size: 30px;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  border-bottom: 1px solid black;
+  font-family: "Roboto Slab", serif;
+}
+
+section {
+  width: 100%;
+  height: 90%;
+}
+
+.add-todo-section {
+  width: 100%;
+  height: 10%;
+
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  /* border-bottom: 1px solid black; */
+}
+
+button {
+  font-size: 15px;
+  width: 80px;
+  height: 50%;
+}
+
+#logout-button {
+  position: fixed;
+  right: 20px;
+  top: 10px;
+}
+
+.dashboard {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+}
+
+#listArea {
+  width: 25%;
+  border: 1px solid black;
+  text-align: center;
+  font-family: "Gloria Hallelujah", cursive;
+}
+
+#itemArea {
+  width: 65%;
+  border: 1px solid black;
+  text-align: center;
+}
+
+.todo {
+  font-size: 25px;
+}
