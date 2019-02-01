@@ -10,6 +10,10 @@ class Todo {
     this.title = title;
   }
 
+  editDescription(description) {
+    this.description = description;
+  }
+
   addItem(item) {
     this.items.unshift(item);
   }

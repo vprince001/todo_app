@@ -37,9 +37,20 @@ const createHtmlElement = function(
 };
 
 const changeTodoDescription = function() {
-  const description = document.getElementById("todoDescription").innerText;
+  const descriptionDiv = document.getElementById("todoDescription");
+  const text = descriptionDiv.innerText;
 
-  console.log(",,,,,,,>", description);
+  const parentDiv = descriptionDiv.parentElement;
+  const inputBox = createHtmlElement(
+    "input",
+    "",
+    "todoDescription",
+    "",
+    "text"
+  );
+  inputBox.value = text;
+  parentDiv.replaceChild(inputBox, descriptionDiv);
+  document.descriptionEdited = true;
 };
 
 const changeTodoTitle = function() {
@@ -47,15 +58,10 @@ const changeTodoTitle = function() {
   const text = titleDiv.innerText;
 
   const parentDiv = titleDiv.parentElement;
-  const inputBox = createHtmlElement(
-    "input",
-    "",
-    "todoTitleTextBox",
-    "",
-    "text"
-  );
+  const inputBox = createHtmlElement("input", "", "todoTitle", "", "text");
   inputBox.value = text;
   parentDiv.replaceChild(inputBox, titleDiv);
+  document.titleEdited = true;
 };
 
 const createHeadDiv = function(itemDetails) {
@@ -73,6 +79,11 @@ const createHeadDiv = function(itemDetails) {
     "todoDescription",
     changeTodoDescription
   );
+
+  document.presentTitle = itemDetails.title;
+  document.presentDescription = itemDetails.description;
+  document.descriptionEdited = false;
+  document.titleEdited = false;
 
   const inputBox = createHtmlElement("input", "", "addItemTextBox", "", "text");
   const addItemButton = createHtmlElement("button", "Add", "", addItem);
@@ -131,13 +142,22 @@ const saveItems = function() {
     return { id: item.id, value: item.value };
   });
 
-  const newTitle = document.getElementById("todoTitleTextBox").value;
+  let newTitle = document.presentTitle;
+  let newDescription = document.presentDescription;
+
+  if (document.titleEdited) {
+    newTitle = document.getElementById("todoTitle").value;
+  }
+  if (document.descriptionEdited) {
+    newDescription = document.getElementById("todoDescription").value;
+  }
 
   let details = {
     method: "POST",
     body: JSON.stringify({
       listId: selectedListId,
       newTitle: newTitle,
+      newDescription: newDescription,
       checkBoxesStatus: checkBoxesStatus,
       editedItems: editedItemValues
     })

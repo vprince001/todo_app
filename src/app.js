@@ -73,9 +73,13 @@ const deleteItem = function(req, res) {
 };
 
 const saveItems = function(req, res) {
-  const { listId, newTitle, checkBoxesStatus, editedItems } = JSON.parse(
-    req.body
-  );
+  const {
+    listId,
+    newTitle,
+    newDescription,
+    checkBoxesStatus,
+    editedItems
+  } = JSON.parse(req.body);
 
   const listIndex = userData.todoLists.findIndex(list => list.id == listId);
   const savedItems = userData.todoLists[listIndex].items;
@@ -97,6 +101,7 @@ const saveItems = function(req, res) {
   });
 
   userData.todoLists[listIndex].editTitle(newTitle);
+  userData.todoLists[listIndex].editDescription(newDescription);
   userData.todoLists[listIndex].items = savedItems;
   writeData(res);
 };

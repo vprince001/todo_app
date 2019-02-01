@@ -4,10 +4,6 @@
 * signup
   * Name
   * confirm password
-
-* TODO homepage
-  * add description
-  * edit description
   
 * handle login
   * check for cookies     //if cookie is set, redirect to homepage
@@ -19,9 +15,6 @@
 
 * Class implementation
   
-  * Todo class
-    * editDescription
-
   * User class
     * addTodo
     * deleteTodo
