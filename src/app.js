@@ -5,6 +5,7 @@ const form = require("../public/form.js");
 const { INDEXPATH, ENCODING, FORMPLACEHOLDER } = require("./constants");
 const { Todo } = require("./model/todo.js");
 const { Item } = require("./model/item.js");
+const { User } = require("./model/user.js");
 
 let userData;
 
@@ -122,10 +123,8 @@ const addItem = function(req, res) {
 };
 
 const deleteList = function(req, res) {
-  const id = req.body;
-  let index = userData.todoLists.findIndex(itemDetail => itemDetail.id == id);
-
-  userData.todoLists.splice(index, 1);
+  const todoId = req.body;
+  userData.deleteTodo(todoId);
   writeData(res);
 };
 
@@ -145,8 +144,7 @@ const addList = function(req, res) {
   };
 
   let list = new Todo(todo);
-
-  userData.todoLists.unshift(list);
+  userData.addTodo(list);
   writeData(res);
 };
 
@@ -179,6 +177,7 @@ const logUserIn = function(req, res) {
 
   fs.readFile(filePath, (err, content) => {
     userData = JSON.parse(content);
+    userData = new User(userData);
 
     if (PASSWORD != userData.PASSWORD) {
       res.write("Wrong Password");
@@ -211,6 +210,8 @@ const parseLoginData = function(req) {
 const registerNewUser = function(req, res) {
   let userDetails = parseLoginData(req);
   userDetails.todoLists = [];
+
+  userData = new User(userDetails);
   let filePath = `./private_data/${userDetails.USERID}.json`;
 
   if (fs.existsSync(filePath)) {

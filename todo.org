@@ -1,5 +1,4 @@
 * Handle multiple users using sessions
-* implement classes
 
 * signup
   * Name
@@ -12,9 +11,3 @@
   * On authentication error take proper action
   * filename should be in same in case
   * setStatus should be changed to toggleStatus
-
-* Class implementation
-  
-  * User class
-    * addTodo
-    * deleteTodo
