@@ -36,57 +36,21 @@ const createHtmlElement = function(
   return element;
 };
 
-const changeTodoDescription = function() {
-  const descriptionDiv = document.getElementById("todoDescription");
-  const text = descriptionDiv.innerText;
-
-  const parentDiv = descriptionDiv.parentElement;
-  const inputBox = createHtmlElement(
-    "input",
-    "",
-    "todoDescription",
-    "",
-    "text"
-  );
-  inputBox.value = text;
-  parentDiv.replaceChild(inputBox, descriptionDiv);
-  document.descriptionEdited = true;
-};
-
-const changeTodoTitle = function() {
-  const titleDiv = document.getElementById("todoTitle");
-  const text = titleDiv.innerText;
-
-  const parentDiv = titleDiv.parentElement;
-  const inputBox = createHtmlElement("input", "", "todoTitle", "", "text");
-  inputBox.value = text;
-  parentDiv.replaceChild(inputBox, titleDiv);
-  document.titleEdited = true;
-};
-
 const createHeadDiv = function(itemDetails) {
   const headDiv = createHtmlElement("div");
   const titleDiv = createHtmlElement("div");
   const descriptionDiv = createHtmlElement("div");
 
-  const title = createHtmlElement(
-    "h1",
-    itemDetails.title,
-    "todoTitle",
-    changeTodoTitle
-  );
+  const title = createHtmlElement("p", itemDetails.title, "todoTitle");
+
+  title.contentEditable = true;
 
   const description = createHtmlElement(
-    "h3",
+    "p",
     itemDetails.description,
-    "todoDescription",
-    changeTodoDescription
+    "todoDescription"
   );
-
-  document.presentTitle = itemDetails.title;
-  document.presentDescription = itemDetails.description;
-  document.descriptionEdited = false;
-  document.titleEdited = false;
+  description.contentEditable = true;
 
   const inputBox = createHtmlElement("input", "", "addItemTextBox", "", "text");
   const addItemButton = createHtmlElement("button", "Add", "", addItem);
@@ -101,28 +65,18 @@ const createHeadDiv = function(itemDetails) {
   return headDiv;
 };
 
-const editItem = function() {
-  const id = event.target.id;
-
-  const descDiv = document.getElementById(id);
-  const text = descDiv.innerText;
-
-  const itemDiv = descDiv.parentElement;
-  const textBox = createHtmlElement("textArea", text, id);
-  itemDiv.replaceChild(textBox, descDiv);
-};
-
 const createBodyDiv = function(itemDetails) {
   const bodyDiv = createHtmlElement("div");
+
   itemDetails.items.forEach(item => {
     const itemDiv = createHtmlElement("div");
     const description = createHtmlElement(
-      "div",
+      "p",
       item.description,
-      `item${item.id}`,
-      editItem,
-      ""
+      `item${item.id}`
     );
+    description.className = "tasks";
+    description.contentEditable = true;
     const checkBox = createHtmlElement("input", "", "", "", "checkbox");
     checkBox.className = "checkBoxes";
     checkBox.checked = item.status;
@@ -143,20 +97,13 @@ const saveItems = function() {
   );
   const checkBoxesStatus = checkBoxes.map(checkBox => checkBox.checked);
 
-  const editedItems = Object.values(document.getElementsByTagName("textArea"));
+  const editedItems = Object.values(document.getElementsByClassName("tasks"));
   const editedItemValues = editedItems.map(item => {
-    return { id: item.id, value: item.value };
+    return { id: item.id, value: item.innerText };
   });
 
-  let newTitle = document.presentTitle;
-  let newDescription = document.presentDescription;
-
-  if (document.titleEdited) {
-    newTitle = document.getElementById("todoTitle").value;
-  }
-  if (document.descriptionEdited) {
-    newDescription = document.getElementById("todoDescription").value;
-  }
+  const newTitle = document.getElementById("todoTitle").innerText;
+  const newDescription = document.getElementById("todoDescription").innerText;
 
   let details = {
     method: "POST",
