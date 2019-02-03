@@ -116,6 +116,11 @@
   box-shadow: 2px 2px 5px 5px rgba(0, 0, 0, 0.47);
   text-align: center;
   overflow: scroll;
+  cursor: pointer;
+}
+
+.list-area div:hover {
+  font-weight: bold;
 }
 
 .item-area {
@@ -124,6 +129,11 @@
   border-radius: 4%;
   box-shadow: 2px 2px 5px 5px rgba(0, 0, 0, 0.47);
   overflow: scroll;
+  position: relative;
+}
+
+.item-area p:hover {
+  font-weight: bold;
 }
 
 .item-area-head {
@@ -132,6 +142,7 @@
 
 #todoTitle {
   font-size: 40px;
+  cursor: pointer;
 }
 
 #todoDescription {
@@ -167,11 +178,11 @@
   outline: none;
   background-color: skyblue;
 }
-
-.tasks {
-  font-size: 20px;
+.item-area-bottom {
+  position: fixed;
+  right: 3%;
+  bottom: 8%;
 }
-
 .item-area-bottom button {
   width: 130px;
   height: 30px;

@@ -8,7 +8,7 @@
 .login-header {
   font-size: 50px;
   height: 10%;
-  border-bottom: 1px solid black;
+  border-bottom: 1px solid #20bbd9;
 }
 
 .login-section {
@@ -83,13 +83,13 @@
   height: 20%;
   width: 70%;
   font-size: 25px;
-  border: 1px solid black;
+  background-color: whitesmoke;
   cursor: pointer;
   border-radius: 20px;
 }
 
 .form button:focus {
-  background-color: skyblue;
+  background-color: #62c6e0;
   height: 21%;
   width: 71%;
   font-size: 26px;
@@ -97,7 +97,7 @@
 }
 
 .form button:hover {
-  background-color: skyblue;
+  background-color: #62c6e0;
   height: 21%;
   width: 71%;
   font-size: 26px;
