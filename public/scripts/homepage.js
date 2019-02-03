@@ -40,10 +40,11 @@ const createHeadDiv = function(itemDetails) {
   const headDiv = createHtmlElement("div");
   const titleDiv = createHtmlElement("div");
   const descriptionDiv = createHtmlElement("div");
-
+  const addItemDiv = createHtmlElement("div");
   const title = createHtmlElement("p", itemDetails.title, "todoTitle");
 
   title.contentEditable = true;
+  addItemDiv.className = "addItemDiv";
 
   const description = createHtmlElement(
     "p",
@@ -53,20 +54,23 @@ const createHeadDiv = function(itemDetails) {
   description.contentEditable = true;
 
   const inputBox = createHtmlElement("input", "", "addItemTextBox", "", "text");
-  const addItemButton = createHtmlElement("button", "Add", "", addItem);
+
+    const addItemButton = createHtmlElement("button", "Add", "", addItem);
 
   titleDiv.appendChild(title);
-  headDiv.appendChild(titleDiv);
-
   descriptionDiv.appendChild(description);
+
+  addItemDiv.appendChild(inputBox);
+  addItemDiv.appendChild(addItemButton);
+
+  headDiv.appendChild(titleDiv);
   headDiv.appendChild(descriptionDiv);
-  headDiv.appendChild(inputBox);
-  headDiv.appendChild(addItemButton);
+  headDiv.appendChild(addItemDiv);
   return headDiv;
 };
 
 const createBodyDiv = function(itemDetails) {
-  const bodyDiv = createHtmlElement("div");
+  const bodyDiv = createHtmlElement("div","","tasksDiv");
 
   itemDetails.items.forEach(item => {
     const itemDiv = createHtmlElement("div");
