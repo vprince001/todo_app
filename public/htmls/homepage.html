@@ -10,30 +10,28 @@
     />
   </head>
   <body>
-    <main>
-      <header>
-        <p>Hello ___userId___</p>
-        <form id="logout-button" action="/logout" method="POST">
-          <button type="submit">logout</button>
+    <main class="hp-main">
+      <header class="hp-header">
+        <p>Hello ___userId___!</p>
+        <form
+          class="hp-logout-form"
+          id="logout-button"
+          action="/logout"
+          method="POST"
+        >
+          <button type="submit">Logout</button>
         </form>
       </header>
 
-      <section>
-        <div class="add-todo-section">
-          <div>
-            <label> Add Todo Title : </label>
-            <input
-              class="input"
-              type="text"
-              name="listTitle"
-              id="todoTitleBox"
-              required
-            />
+      <section class="hp-section">
+        <div class="addtodo-section">
+          <div class="addtodo">
+            <label>Todo Title : </label>
+            <input type="text" name="listTitle" id="todoTitleBox" required />
           </div>
-          <div>
+          <div class="adddescription">
             <label> Description : </label>
             <input
-              class="input"
               type="text"
               name="listDescription"
               id="todoDescriptionBox"
@@ -43,8 +41,8 @@
           <button onclick="addList()">Add</button>
         </div>
         <div class="dashboard">
-          <div id="listArea"></div>
-          <div id="itemArea"></div>
+          <div class="list-area" id="listArea"></div>
+          <div class="item-area" id="itemArea"></div>
         </div>
       </section>
     </main>

@@ -38,13 +38,14 @@ const createHtmlElement = function(
 
 const createHeadDiv = function(itemDetails) {
   const headDiv = createHtmlElement("div");
+  headDiv.className = "item-area-head";
   const titleDiv = createHtmlElement("div");
   const descriptionDiv = createHtmlElement("div");
   const addItemDiv = createHtmlElement("div");
   const title = createHtmlElement("p", itemDetails.title, "todoTitle");
 
   title.contentEditable = true;
-  addItemDiv.className = "addItemDiv";
+  addItemDiv.className = "additem-div";
 
   const description = createHtmlElement(
     "p",
@@ -55,7 +56,7 @@ const createHeadDiv = function(itemDetails) {
 
   const inputBox = createHtmlElement("input", "", "addItemTextBox", "", "text");
 
-    const addItemButton = createHtmlElement("button", "Add", "", addItem);
+  const addItemButton = createHtmlElement("button", "Add", "", addItem);
 
   titleDiv.appendChild(title);
   descriptionDiv.appendChild(description);
@@ -70,26 +71,26 @@ const createHeadDiv = function(itemDetails) {
 };
 
 const createBodyDiv = function(itemDetails) {
-  const bodyDiv = createHtmlElement("div","","tasksDiv");
+  const bodyDiv = createHtmlElement("div", "", "item-area-body");
 
   itemDetails.items.forEach(item => {
     const itemDiv = createHtmlElement("div");
-    const description = createHtmlElement(
+    const itemDescription = createHtmlElement(
       "p",
       item.description,
       `item${item.id}`
     );
-    description.className = "tasks";
-    description.contentEditable = true;
+    itemDescription.className = "tasks";
+    itemDescription.contentEditable = true;
     const checkBox = createHtmlElement("input", "", "", "", "checkbox");
     checkBox.className = "checkBoxes";
     checkBox.checked = item.status;
 
     const button = createHtmlElement("button", "X", item.id, deleteItem);
     itemDiv.appendChild(checkBox);
-    itemDiv.appendChild(description);
+    itemDiv.appendChild(itemDescription);
     itemDiv.appendChild(button);
-    description.style.display = "inline";
+    itemDescription.style.display = "inline";
     bodyDiv.appendChild(itemDiv);
   });
   return bodyDiv;
@@ -129,11 +130,18 @@ const saveItems = function() {
 
 const createBottomDiv = function() {
   const bottomDiv = createHtmlElement("div");
-  const saveButton = createHtmlElement("button", "Save", "", saveItems);
+  bottomDiv.className = "item-area-bottom";
+
+  const saveButton = createHtmlElement(
+    "button",
+    "Save",
+    "savetodo-button",
+    saveItems
+  );
   const deleteButton = createHtmlElement(
     "button",
-    "Delete list",
-    "",
+    "Delete Todo",
+    "deletetodo-button",
     deleteList
   );
   bottomDiv.appendChild(saveButton);
@@ -180,9 +188,23 @@ const deleteList = function() {
 };
 
 const addList = function() {
-  const listTitle = document.getElementById("todoTitleBox").value;
-  const listDescription = document.getElementById("todoDescriptionBox").value;
+  const listTitleElement = document.getElementById("todoTitleBox");
+  const listDescriptionElement = document.getElementById("todoDescriptionBox");
+  let listTitle = listTitleElement.value;
+  let listDescription = listDescriptionElement.value;
 
+  if (listTitle == "") {
+    listTitleElement.placeholder = "Title name required";
+    listDescriptionElement.value = "";
+    return;
+  }
+
+  if (listDescription == "") {
+    listDescription = "Todo Description";
+  }
+
+  listTitleElement.value = "";
+  listDescriptionElement.value = "";
   fetchLists("/addList", {
     method: "POST",
     body: JSON.stringify({ listTitle, listDescription })
@@ -191,6 +213,7 @@ const addList = function() {
 
 const createListsHtml = function(lists) {
   const listAreaDiv = document.getElementById("listArea");
+  listAreaDiv.className = "list-area";
   listAreaDiv.innerHTML = "";
 
   lists.forEach(list => {
@@ -198,7 +221,6 @@ const createListsHtml = function(lists) {
     listDiv.id = list.id;
     listDiv.innerText = list.title;
     listDiv.onclick = fetchItems;
-    listDiv.className = "todo";
     listAreaDiv.appendChild(listDiv);
   });
 };
