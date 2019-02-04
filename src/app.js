@@ -33,9 +33,7 @@ const retrieveUserId = function(req) {
 
 const setCookie = function(req, res) {
   const { USERID } = parseLoginData(req);
-  if (!req.headers.cookie) {
-    res.setHeader("Set-Cookie", `username=${USERID}`);
-  }
+  res.setHeader("Set-Cookie", `username=${USERID}`);
 };
 
 const readBody = function(req, res, next) {
@@ -191,8 +189,8 @@ const userExist = function(res, filePath) {
   return true;
 };
 
-const passwordMatched = function(res, PASSWORD, userData) {
-  if (PASSWORD != userData.PASSWORD) {
+const passwordMatched = function(res, PASSWORD = null, savedPassword = null) {
+  if (PASSWORD != savedPassword) {
     res.write("Wrong Password");
     res.end();
     return false;
@@ -200,24 +198,27 @@ const passwordMatched = function(res, PASSWORD, userData) {
   return true;
 };
 
+const loadHomePage = function(req, res, filePath, USERID, PASSWORD) {
+  fs.readFile(filePath, (err, content) => {
+    if (err) throw err;
+
+    let userData = JSON.parse(content);
+    if (!req.headers.cookie) {
+      if (!passwordMatched(res, PASSWORD, userData.PASSWORD)) return;
+      setCookie(req, res);
+    }
+    session[USERID] = userData;
+    reviveInstances(USERID);
+    getHomePage(req, res);
+  });
+};
+
 const logUserIn = function(req, res) {
   const { USERID, PASSWORD } = parseLoginData(req);
   const filePath = `./private_data/${USERID}.json`;
 
   if (!userExist(res, filePath)) return;
-
-  fs.readFile(filePath, (err, content) => {
-    if (err) throw err;
-
-    let userData = JSON.parse(content);
-
-    if (!passwordMatched(res, PASSWORD, userData)) return;
-
-    setCookie(req, res);
-    session[USERID] = userData;
-    reviveInstances(USERID);
-    getHomePage(req, res);
-  });
+  loadHomePage(req, res, filePath, USERID, PASSWORD);
 };
 
 const reviveInstances = function(USERID) {
@@ -260,19 +261,11 @@ const registerNewUser = function(req, res) {
   renderMainPage("loginForm", req, res);
 };
 
-const retrieveUserData = function(USERID) {
-  const filePath = `./private_data/${USERID}.json`;
-  fs.readFile(filePath, (err, content) => {
-    session[USERID] = JSON.parse(content);
-    reviveInstances(USERID);
-  });
-};
-
 const renderMainPage = function(nameOfForm, req, res) {
   if (req.headers.cookie) {
     let userId = retrieveUserId(req);
-    session[userId] = retrieveUserData(userId);
-    getHomePage(req, res);
+    const filePath = `./private_data/${userId}.json`;
+    loadHomePage(req, res, filePath, userId);
     return;
   }
 
