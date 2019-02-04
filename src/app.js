@@ -7,7 +7,7 @@ const { Todo } = require("./model/todo.js");
 const { Item } = require("./model/item.js");
 const { User } = require("./model/user.js");
 
-let userData;
+let session = new Object();
 
 //-------------------------Server Handlers-------------------------//
 
@@ -23,12 +23,18 @@ const serveStaticFiles = function(req, res, next, send) {
 };
 
 const getUserData = function(req, res, next, send) {
-  send(res, JSON.stringify(userData), 200);
+  const userId = retrieveUserId(req);
+  send(res, JSON.stringify(session[userId]), 200);
+};
+
+const retrieveUserId = function(req) {
+  return req.headers.cookie.split("=")[1];
 };
 
 const setCookie = function(req, res) {
+  const { USERID } = parseLoginData(req);
   if (!req.headers.cookie) {
-    res.setHeader("Set-Cookie", `username=${userData.USERID}`);
+    res.setHeader("Set-Cookie", `username=${USERID}`);
   }
 };
 
@@ -48,12 +54,14 @@ const getRequest = function(url) {
 
 //-------------------------TODO Handlers-------------------------//
 
-const writeData = function(res) {
-  const userId = userData.USERID;
-  let filePath = `./private_data/${userId}.json`;
-  fs.writeFile(filePath, JSON.stringify(userData), err => {
+const writeData = function(req, res) {
+  const userId = retrieveUserId(req);
+  const filePath = `./private_data/${userId}.json`;
+  const data = JSON.stringify(session[userId]);
+
+  fs.writeFile(filePath, data, err => {
     if (err) throw err;
-    res.write(JSON.stringify(userData));
+    res.write(data);
     res.end();
   });
 };
@@ -67,10 +75,13 @@ const logUserOut = function(req, res) {
 
 const deleteItem = function(req, res) {
   const { itemId, listId } = JSON.parse(req.body);
+  const userId = retrieveUserId(req);
 
-  const listIndex = userData.todoLists.findIndex(list => list.id == listId);
-  userData.todoLists[listIndex].deleteItem(itemId);
-  writeData(res);
+  const listIndex = session[userId].todoLists.findIndex(
+    list => list.id == listId
+  );
+  session[userId].todoLists[listIndex].deleteItem(itemId);
+  writeData(req, res);
 };
 
 const saveItems = function(req, res) {
@@ -82,8 +93,11 @@ const saveItems = function(req, res) {
     editedItems
   } = JSON.parse(req.body);
 
-  const listIndex = userData.todoLists.findIndex(list => list.id == listId);
-  const savedItems = userData.todoLists[listIndex].items;
+  const userId = retrieveUserId(req);
+  const listIndex = session[userId].todoLists.findIndex(
+    list => list.id == listId
+  );
+  const savedItems = session[userId].todoLists[listIndex].items;
 
   editedItems.forEach(editedItem => {
     let editedItemId = editedItem.id.substring(4);
@@ -101,39 +115,43 @@ const saveItems = function(req, res) {
     index++;
   });
 
-  userData.todoLists[listIndex].editTitle(newTitle);
-  userData.todoLists[listIndex].editDescription(newDescription);
-  userData.todoLists[listIndex].items = savedItems;
-  writeData(res);
+  session[userId].todoLists[listIndex].editTitle(newTitle);
+  session[userId].todoLists[listIndex].editDescription(newDescription);
+  session[userId].todoLists[listIndex].items = savedItems;
+  writeData(req, res);
 };
 
 const addItem = function(req, res) {
   const { id, desc } = JSON.parse(req.body);
   let item = { id: 0, description: desc, status: false };
+  const userId = retrieveUserId(req);
 
-  const matchedList = userData.todoLists.filter(list => list.id == id)[0];
+  const matchedList = session[userId].todoLists.filter(
+    list => list.id == id
+  )[0];
   if (matchedList.items.length > 0) {
     item.id = matchedList.items[0].id + 1;
   }
-  let listIndex = userData.todoLists.findIndex(item => item.id == id);
+  let listIndex = session[userId].todoLists.findIndex(item => item.id == id);
 
   let newItem = new Item(item);
-  userData.todoLists[listIndex].addItem(newItem);
-  writeData(res);
+  session[userId].todoLists[listIndex].addItem(newItem);
+  writeData(req, res);
 };
 
 const deleteList = function(req, res) {
   const todoId = req.body;
-  userData.deleteTodo(todoId);
-  writeData(res);
+  const userId = retrieveUserId(req);
+  session[userId].deleteTodo(todoId);
+  writeData(req, res);
 };
 
 const addList = function(req, res) {
   const { listTitle, listDescription } = JSON.parse(req.body);
-
+  const userId = retrieveUserId(req);
   let listId = 0;
-  if (userData.todoLists.length > 0) {
-    listId = userData.todoLists[0].id + 1;
+  if (session[userId].todoLists.length > 0) {
+    listId = session[userId].todoLists[0].id + 1;
   }
 
   const todo = {
@@ -144,8 +162,8 @@ const addList = function(req, res) {
   };
 
   let list = new Todo(todo);
-  userData.addTodo(list);
-  writeData(res);
+  session[userId].addTodo(list);
+  writeData(req, res);
 };
 
 const renderHomepage = function(req, res) {
@@ -160,7 +178,6 @@ const renderHomepage = function(req, res) {
 };
 
 const getHomePage = function(req, res) {
-  setCookie(req, res);
   res.writeHead(302, { Location: "/htmls/homepage.html" });
   res.end();
 };
@@ -176,8 +193,7 @@ const logUserIn = function(req, res) {
   }
 
   fs.readFile(filePath, (err, content) => {
-    userData = JSON.parse(content);
-    userData = new User(userData);
+    let userData = JSON.parse(content);
 
     if (PASSWORD != userData.PASSWORD) {
       res.write("Wrong Password");
@@ -185,16 +201,25 @@ const logUserIn = function(req, res) {
       return;
     }
 
-    if (userData.todoLists.length) {
-      userData.todoLists = userData.todoLists.map(list => new Todo(list));
-
-      userData.todoLists = userData.todoLists.map(list => {
-        list.items = list.items.map(item => new Item(item));
-        return list;
-      });
-    }
+    setCookie(req, res);
+    session[USERID] = userData;
+    reviveInstances(USERID);
     getHomePage(req, res);
   });
+};
+
+const reviveInstances = function(USERID) {
+  session[USERID] = new User(session[USERID]);
+  if (session[USERID].todoLists.length) {
+    session[USERID].todoLists = session[USERID].todoLists.map(
+      list => new Todo(list)
+    );
+
+    session[USERID].todoLists = session[USERID].todoLists.map(list => {
+      list.items = list.items.map(item => new Item(item));
+      return list;
+    });
+  }
 };
 
 const parseData = function(content, index) {
@@ -211,7 +236,6 @@ const registerNewUser = function(req, res) {
   let userDetails = parseLoginData(req);
   userDetails.todoLists = [];
 
-  userData = new User(userDetails);
   let filePath = `./private_data/${userDetails.USERID}.json`;
 
   if (fs.existsSync(filePath)) {
