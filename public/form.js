@@ -24,27 +24,16 @@ const form = {
       <div class="login-box">
         <div class="form-title">SIGN UP</div>
         <form class="form" method="POST" action="/signup">
-          <input type="text" placeholder="username" name="name" />
+          <input type="text" placeholder="name" name="name" />
+          <input type="text" placeholder="username" name="username" />
           <input type="password" placeholder="password" name="password" />
+          <input type="password" placeholder="confirm password" name="confirm password" />
           <button>Sign Up</button>
         </form>
         <div class="login-link">
         <a href="/login">Already have an account?</a>
         </div>
       </div>
-    </div>
-  </section>`,
-
-  userNameError: `<header>My Todo App</header>
-  <section>
-    <div class="login-box">
-      <div class="form-title">Sign Up</div>
-      <form method="POST" action="/sign">
-        <input type="text" placeholder="UserId" name="name" />
-        <input type="password" placeholder="Password" name="password" />
-        <button>Sign Up</button>
-      </form>
-      <span class = "errorMsg"> Sorry, UserName already exists </span>
     </div>
   </section>`
 };

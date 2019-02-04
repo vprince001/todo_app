@@ -1,7 +1,3 @@
-* signup
-  * Name
-  * confirm password
-  
 * Fix Issues
   * On authentication error take proper action
   * filename should be in same in case

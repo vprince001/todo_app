@@ -1,5 +1,6 @@
 class User {
   constructor(userData) {
+    this.name = userData.name;
     this.USERID = userData.USERID;
     this.PASSWORD = userData.PASSWORD;
     this.todoLists = userData.todoLists;

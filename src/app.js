@@ -165,18 +165,6 @@ const addList = function(req, res) {
   writeData(req, res);
 };
 
-const renderHomepage = function(req, res) {
-  const filePath = "./public/htmls/homepage.html";
-
-  const userName = req.body.split("&")[0].split("=")[1];
-
-  fs.readFile(filePath, ENCODING, function(err, content) {
-    if (err) throw err;
-    res.write(content.replace("___userId___", userName));
-    res.end();
-  });
-};
-
 const userExist = function(res, filePath) {
   if (!fs.existsSync(filePath)) {
     res.write("Account doesn't exist");
@@ -219,16 +207,43 @@ const parseLoginData = function(req) {
   return { USERID: userId, PASSWORD: password };
 };
 
-const registerNewUser = function(req, res) {
-  let userDetails = parseLoginData(req);
-  userDetails.todoLists = [];
+const parseSignUpData = function(req) {
+  const name = parseData(req.body, 0);
+  const userId = parseData(req.body, 1);
+  const password = parseData(req.body, 2);
+  const confirmPassword = parseData(req.body, 3);
+  return {
+    name: name,
+    USERID: userId,
+    PASSWORD: password,
+    confirmPassword: confirmPassword
+  };
+};
 
-  let filePath = `./private_data/${userDetails.USERID}.json`;
+const registerNewUser = function(req, res) {
+  const { name, USERID, PASSWORD, confirmPassword } = parseSignUpData(req);
+  const parsedData = parseSignUpData(req);
+  let filePath = `./private_data/${USERID}.json`;
 
   if (fs.existsSync(filePath)) {
-    renderMainPage("userNameError", req, res);
+    res.write("Account already Exists");
+    res.end();
     return;
   }
+
+  if (PASSWORD != confirmPassword) {
+    res.write("passwords do not match");
+    res.end();
+    return;
+  }
+
+  const userDetails = {
+    name: name,
+    USERID: USERID,
+    PASSWORD: PASSWORD,
+    todoLists: []
+  };
+
   fs.writeFile(filePath, JSON.stringify(userDetails), err => {
     if (err) throw err;
   });
@@ -261,13 +276,14 @@ const loadHomePage = function(req, res, filePath, USERID, PASSWORD) {
       if (!passwordMatched(res, PASSWORD, userData.PASSWORD)) return;
       setCookie(req, res);
     }
+
     session[USERID] = userData;
     reviveInstances(USERID);
     const filePath = "./public/htmls/homepage.html";
 
     fs.readFile(filePath, ENCODING, function(err, content) {
       if (err) throw err;
-      res.write(content.replace("___userId___", USERID));
+      res.write(content.replace("___userId___", session[USERID].name));
       res.end();
     });
   });
