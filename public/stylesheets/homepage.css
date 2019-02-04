@@ -1,5 +1,4 @@
 .hp-main {
-  font-family: "Nunito", sans-serif;
   height: 98%;
   width: 99%;
   position: absolute;
@@ -109,14 +108,18 @@
 }
 
 .list-area {
-  width: 30%;
+  width: 20%;
   height: 95%;
-  font-size: 30px;
-  border-radius: 5%;
+  font-size: 25px;
   box-shadow: 2px 2px 5px 5px rgba(0, 0, 0, 0.47);
   text-align: center;
   overflow: scroll;
   cursor: pointer;
+}
+
+.list-area div {
+  padding: 5px;
+  border-bottom: solid 2px rgba(157, 157, 157, 0.919);
 }
 
 .list-area div:hover {
@@ -124,9 +127,8 @@
 }
 
 .item-area {
-  width: 65%;
+  width: 75%;
   height: 95%;
-  border-radius: 4%;
   box-shadow: 2px 2px 5px 5px rgba(0, 0, 0, 0.47);
   overflow: scroll;
   position: relative;
@@ -134,6 +136,11 @@
 
 .item-area p:hover {
   font-weight: bold;
+}
+
+.item-area p:focus {
+  font-weight: bold;
+  outline: none;
 }
 
 .item-area-head {
@@ -151,19 +158,21 @@
 
 .additem-div {
   display: flex;
+  justify-content: space-between;
+  width: 70%;
+  margin-left: 1.5%;
 }
 
 .additem-div input {
-  width: 50%;
-  margin-left: 15px;
+  width: 80%;
+  font-size: 15px;
 }
 
 .additem-div button {
-  width: 90px;
+  width: 70px;
   height: 30px;
   font-size: 15px;
   border-radius: 20px;
-  margin-left: 15px;
   cursor: pointer;
 }
 
@@ -178,11 +187,57 @@
   outline: none;
   background-color: skyblue;
 }
+
+.additem-div input::placeholder {
+  color: red;
+}
+
+.task-div {
+  width: 70%;
+  display: flex;
+  justify-content: space-between;
+  margin-left: 1.5%;
+}
+
+.checkBoxes {
+  width: 25px;
+  height: 25px;
+}
+
+.task-desc {
+  font-size: 25px;
+}
+
+.task-div button {
+  width: 70px;
+  height: 30px;
+  font-size: 15px;
+  border-radius: 20px;
+  cursor: pointer;
+}
+
+.task-div button:hover {
+  width: 71px;
+  font-size: 18px;
+  background-color: rgb(255, 68, 68);
+}
+
+.task-div button:focus {
+  width: 71px;
+  font-size: 18px;
+  background-color: rgb(255, 68, 68);
+}
+
 .item-area-bottom {
+  height: 70px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
   position: fixed;
   right: 3%;
   bottom: 8%;
 }
+
 .item-area-bottom button {
   width: 130px;
   height: 30px;

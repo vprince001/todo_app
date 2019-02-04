@@ -13,7 +13,13 @@ const deleteItem = function(event) {
 };
 
 const addItem = function() {
-  const itemDesc = document.getElementById("addItemTextBox").value;
+  const itemDescElement = document.getElementById("addItemTextBox");
+  let itemDesc = itemDescElement.value;
+  if (itemDesc == "") {
+    itemDescElement.placeholder = "Task description required";
+    return;
+  }
+
   const event = { target: { id: selectedListId } };
   fetchItems(event, "/addItem", {
     method: "POST",
@@ -75,20 +81,28 @@ const createBodyDiv = function(itemDetails) {
 
   itemDetails.items.forEach(item => {
     const itemDiv = createHtmlElement("div");
+    itemDiv.className = "task-div";
+
+    const dualElementDiv = createHtmlElement("div");
+
+    const checkBox = createHtmlElement("input", "", "", "", "checkbox");
+    checkBox.className = "checkBoxes";
+    checkBox.checked = item.status;
+
     const itemDescription = createHtmlElement(
       "p",
       item.description,
       `item${item.id}`
     );
-    itemDescription.className = "tasks";
+    itemDescription.className = "task-desc";
     itemDescription.contentEditable = true;
-    const checkBox = createHtmlElement("input", "", "", "", "checkbox");
-    checkBox.className = "checkBoxes";
-    checkBox.checked = item.status;
 
-    const button = createHtmlElement("button", "X", item.id, deleteItem);
-    itemDiv.appendChild(checkBox);
-    itemDiv.appendChild(itemDescription);
+    dualElementDiv.appendChild(checkBox);
+    dualElementDiv.appendChild(itemDescription);
+
+    const button = createHtmlElement("button", "Delete", item.id, deleteItem);
+
+    itemDiv.appendChild(dualElementDiv);
     itemDiv.appendChild(button);
     itemDescription.style.display = "inline";
     bodyDiv.appendChild(itemDiv);
@@ -102,7 +116,9 @@ const saveItems = function() {
   );
   const checkBoxesStatus = checkBoxes.map(checkBox => checkBox.checked);
 
-  const editedItems = Object.values(document.getElementsByClassName("tasks"));
+  const editedItems = Object.values(
+    document.getElementsByClassName("task-desc")
+  );
   const editedItemValues = editedItems.map(item => {
     return { id: item.id, value: item.innerText };
   });
