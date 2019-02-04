@@ -2,9 +2,6 @@
   * Name
   * confirm password
   
-* handle login
-  * check for cookies     //if cookie is set, redirect to homepage
-
 * Fix Issues
   * On authentication error take proper action
   * filename should be in same in case

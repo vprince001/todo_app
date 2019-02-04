@@ -5,13 +5,13 @@ const form = {
     <div class="login-box-container">
       <div class="login-box">
         <div class="form-title">LOGIN</div>
-        <form class="form" method="POST" action="/login">
+        <form class="form" method="POST" action="/">
           <input type="text" placeholder="username" name="name" />
           <input type="password" placeholder="password" name="password" />
           <button>Login</button>
         </form>
         <div class="signUp-link">
-        <a href="/signUp"> Create Account</a>
+        <a href="/signup">Create Account</a>
         </div>
       </div>
     </div>
@@ -23,11 +23,14 @@ const form = {
     <div class="login-box-container">
       <div class="login-box">
         <div class="form-title">SIGN UP</div>
-        <form class="form" method="POST" action="/">
+        <form class="form" method="POST" action="/signup">
           <input type="text" placeholder="username" name="name" />
           <input type="password" placeholder="password" name="password" />
           <button>Sign Up</button>
         </form>
+        <div class="login-link">
+        <a href="/login">Already have an account?</a>
+        </div>
       </div>
     </div>
   </section>`,
@@ -36,7 +39,7 @@ const form = {
   <section>
     <div class="login-box">
       <div class="form-title">Sign Up</div>
-      <form method="POST" action="/">
+      <form method="POST" action="/sign">
         <input type="text" placeholder="UserId" name="name" />
         <input type="password" placeholder="Password" name="password" />
         <button>Sign Up</button>

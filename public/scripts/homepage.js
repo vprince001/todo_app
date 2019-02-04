@@ -21,7 +21,7 @@ const addItem = function() {
   }
 
   const event = { target: { id: selectedListId } };
-  fetchItems(event, "/addItem", {
+  fetchItems(event, "/newItem", {
     method: "POST",
     body: JSON.stringify({ desc: itemDesc, id: selectedListId })
   });
@@ -137,8 +137,8 @@ const saveItems = function() {
     })
   };
 
-  fetchLists("/getData");
-  fetch("/saveItems", details)
+  fetchLists("/data");
+  fetch("/saveTodo", details)
     .then(response => response.text())
     .then(data => getItems(data, selectedListId))
     .then(details => createItemBox(details));
@@ -190,7 +190,7 @@ const getItems = function(data, clickedListId) {
   };
 };
 
-const fetchItems = function(event, url = "/getData", details) {
+const fetchItems = function(event, url = "/data", details) {
   clickedListId = event.target.id;
   fetch(url, details)
     .then(response => response.text())
@@ -199,7 +199,7 @@ const fetchItems = function(event, url = "/getData", details) {
 };
 
 const deleteList = function() {
-  fetchLists("/deleteList", { method: "POST", body: selectedListId });
+  fetchLists("/deleteTodo", { method: "POST", body: selectedListId });
   document.getElementById("itemArea").innerHTML = "";
 };
 
@@ -221,7 +221,7 @@ const addList = function() {
 
   listTitleElement.value = "";
   listDescriptionElement.value = "";
-  fetchLists("/addList", {
+  fetchLists("/newTodo", {
     method: "POST",
     body: JSON.stringify({ listTitle, listDescription })
   });
@@ -253,4 +253,4 @@ const fetchLists = function(url, details) {
     .then(lists => createListsHtml(lists));
 };
 
-window.onload = fetchLists.bind(null, "/getData");
+window.onload = fetchLists.bind(null, "/data");

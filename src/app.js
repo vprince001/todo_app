@@ -13,6 +13,7 @@ let session = new Object();
 
 const serveStaticFiles = function(req, res, next, send) {
   let path = getRequest(req.url);
+
   fs.readFile(path, (err, content) => {
     if (err) {
       send(res, err, 404);
@@ -165,19 +166,15 @@ const addList = function(req, res) {
 };
 
 const renderHomepage = function(req, res) {
-  const filePath = getRequest(req.url);
-  const userName = retrieveUserId(req);
+  const filePath = "./public/htmls/homepage.html";
+
+  const userName = req.body.split("&")[0].split("=")[1];
 
   fs.readFile(filePath, ENCODING, function(err, content) {
-    if (err) console.log(err);
+    if (err) throw err;
     res.write(content.replace("___userId___", userName));
     res.end();
   });
-};
-
-const getHomePage = function(req, res) {
-  res.writeHead(302, { Location: "/htmls/homepage.html" });
-  res.end();
 };
 
 const userExist = function(res, filePath) {
@@ -196,29 +193,6 @@ const passwordMatched = function(res, PASSWORD = null, savedPassword = null) {
     return false;
   }
   return true;
-};
-
-const loadHomePage = function(req, res, filePath, USERID, PASSWORD) {
-  fs.readFile(filePath, (err, content) => {
-    if (err) throw err;
-
-    let userData = JSON.parse(content);
-    if (!req.headers.cookie) {
-      if (!passwordMatched(res, PASSWORD, userData.PASSWORD)) return;
-      setCookie(req, res);
-    }
-    session[USERID] = userData;
-    reviveInstances(USERID);
-    getHomePage(req, res);
-  });
-};
-
-const logUserIn = function(req, res) {
-  const { USERID, PASSWORD } = parseLoginData(req);
-  const filePath = `./private_data/${USERID}.json`;
-
-  if (!userExist(res, filePath)) return;
-  loadHomePage(req, res, filePath, USERID, PASSWORD);
 };
 
 const reviveInstances = function(USERID) {
@@ -240,8 +214,8 @@ const parseData = function(content, index) {
 };
 
 const parseLoginData = function(req) {
-  let userId = parseData(req.body, 0);
-  let password = parseData(req.body, 1);
+  const userId = parseData(req.body, 0);
+  const password = parseData(req.body, 1);
   return { USERID: userId, PASSWORD: password };
 };
 
@@ -256,9 +230,47 @@ const registerNewUser = function(req, res) {
     return;
   }
   fs.writeFile(filePath, JSON.stringify(userDetails), err => {
-    if (err) console.log(err);
+    if (err) throw err;
   });
-  renderMainPage("loginForm", req, res);
+  res.writeHead(302, { Location: "/" });
+  res.end();
+};
+
+const logUserIn = function(req, res) {
+  const { USERID, PASSWORD } = parseLoginData(req);
+  const filePath = `./private_data/${USERID}.json`;
+
+  if (!userExist(res, filePath)) return;
+  loadHomePage(req, res, filePath, USERID, PASSWORD);
+};
+
+const loadIndexPage = function(req, res, nameOfForm) {
+  fs.readFile(INDEXPATH, ENCODING, function(err, content) {
+    res.write(content.replace(FORMPLACEHOLDER, form[nameOfForm]));
+    res.end();
+  });
+};
+
+const loadHomePage = function(req, res, filePath, USERID, PASSWORD) {
+  fs.readFile(filePath, (err, content) => {
+    if (err) throw err;
+
+    let userData = JSON.parse(content);
+
+    if (!req.headers.cookie) {
+      if (!passwordMatched(res, PASSWORD, userData.PASSWORD)) return;
+      setCookie(req, res);
+    }
+    session[USERID] = userData;
+    reviveInstances(USERID);
+    const filePath = "./public/htmls/homepage.html";
+
+    fs.readFile(filePath, ENCODING, function(err, content) {
+      if (err) throw err;
+      res.write(content.replace("___userId___", USERID));
+      res.end();
+    });
+  });
 };
 
 const renderMainPage = function(nameOfForm, req, res) {
@@ -268,29 +280,24 @@ const renderMainPage = function(nameOfForm, req, res) {
     loadHomePage(req, res, filePath, userId);
     return;
   }
-
-  fs.readFile(INDEXPATH, ENCODING, function(err, content) {
-    res.write(content.replace(FORMPLACEHOLDER, form[nameOfForm]));
-    res.end();
-  });
+  loadIndexPage(req, res, nameOfForm);
 };
 
 const app = new App();
 
 app.use(readBody);
 app.get("/", renderMainPage.bind(null, "loginForm"));
-app.get("/signUp", renderMainPage.bind(null, "signUpForm"));
-app.post("/", registerNewUser);
-app.post("/login", logUserIn);
-app.post("/logout", logUserOut);
-app.get("/htmls/homepage.html", renderHomepage);
-app.post("/addList", addList);
-app.post("/addItem", addItem);
-app.post("/deleteList", deleteList);
+app.post("/", logUserIn);
+app.get("/login", renderMainPage.bind(null, "loginForm"));
+app.get("/signup", renderMainPage.bind(null, "signUpForm"));
+app.post("/signup", registerNewUser);
+app.get("/data", getUserData);
+app.post("/newTodo", addList);
+app.post("/newItem", addItem);
+app.post("/deleteTodo", deleteList);
 app.post("/deleteItem", deleteItem);
-app.post("/saveItems", saveItems);
-app.get("/getData", getUserData);
-
+app.post("/saveTodo", saveItems);
+app.post("/logout", logUserOut);
 app.use(serveStaticFiles);
 
 const handleRequest = app.handleRequest.bind(app);
