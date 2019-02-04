@@ -168,7 +168,7 @@ const addList = function(req, res) {
 
 const renderHomepage = function(req, res) {
   const filePath = getRequest(req.url);
-  const userName = req.headers.cookie.split("=")[1];
+  const userName = retrieveUserId(req);
 
   fs.readFile(filePath, ENCODING, function(err, content) {
     if (err) console.log(err);
@@ -182,24 +182,36 @@ const getHomePage = function(req, res) {
   res.end();
 };
 
+const userExist = function(res, filePath) {
+  if (!fs.existsSync(filePath)) {
+    res.write("Account doesn't exist");
+    res.end();
+    return false;
+  }
+  return true;
+};
+
+const passwordMatched = function(res, PASSWORD, userData) {
+  if (PASSWORD != userData.PASSWORD) {
+    res.write("Wrong Password");
+    res.end();
+    return false;
+  }
+  return true;
+};
+
 const logUserIn = function(req, res) {
   const { USERID, PASSWORD } = parseLoginData(req);
   const filePath = `./private_data/${USERID}.json`;
 
-  if (!fs.existsSync(filePath)) {
-    res.write("Account doesn't exist");
-    res.end();
-    return;
-  }
+  if (!userExist(res, filePath)) return;
 
   fs.readFile(filePath, (err, content) => {
+    if (err) throw err;
+
     let userData = JSON.parse(content);
 
-    if (PASSWORD != userData.PASSWORD) {
-      res.write("Wrong Password");
-      res.end();
-      return;
-    }
+    if (!passwordMatched(res, PASSWORD, userData)) return;
 
     setCookie(req, res);
     session[USERID] = userData;
@@ -248,7 +260,22 @@ const registerNewUser = function(req, res) {
   renderMainPage("loginForm", req, res);
 };
 
+const retrieveUserData = function(USERID) {
+  const filePath = `./private_data/${USERID}.json`;
+  fs.readFile(filePath, (err, content) => {
+    session[USERID] = JSON.parse(content);
+    reviveInstances(USERID);
+  });
+};
+
 const renderMainPage = function(nameOfForm, req, res) {
+  if (req.headers.cookie) {
+    let userId = retrieveUserId(req);
+    session[userId] = retrieveUserData(userId);
+    getHomePage(req, res);
+    return;
+  }
+
   fs.readFile(INDEXPATH, ENCODING, function(err, content) {
     res.write(content.replace(FORMPLACEHOLDER, form[nameOfForm]));
     res.end();
