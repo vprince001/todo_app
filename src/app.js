@@ -1,5 +1,6 @@
 const fs = require("fs");
-const { App } = require("./frameWork.js");
+const express = require("express");
+const app = express();
 const form = require("../public/form.js");
 
 const { INDEXPATH, ENCODING, FORMPLACEHOLDER } = require("./constants");
@@ -11,19 +12,13 @@ let session = new Object();
 
 //-------------------------Server Handlers-------------------------//
 
-const serveStaticFiles = function(req, res, next, send) {
-  let path = getRequest(req.url);
-
-  fs.readFile(path, (err, content) => {
-    if (err) {
-      send(res, err, 404);
-      return;
-    }
-    send(res, content, 200);
-  });
+const send = function(res, content, statusCode = 200) {
+  res.statusCode = statusCode;
+  res.write(content);
+  res.end();
 };
 
-const getUserData = function(req, res, next, send) {
+const getUserData = function(req, res) {
   const userId = retrieveUserId(req);
   send(res, JSON.stringify(session[userId]), 200);
 };
@@ -299,12 +294,9 @@ const renderMainPage = function(nameOfForm, req, res) {
   loadIndexPage(req, res, nameOfForm);
 };
 
-const app = new App();
-
 app.use(readBody);
 app.get("/", renderMainPage.bind(null, "loginForm"));
 app.post("/", logUserIn);
-app.get("/login", renderMainPage.bind(null, "loginForm"));
 app.get("/signup", renderMainPage.bind(null, "signUpForm"));
 app.post("/signup", registerNewUser);
 app.get("/data", getUserData);
@@ -314,13 +306,10 @@ app.post("/deleteTodo", deleteList);
 app.post("/deleteItem", deleteItem);
 app.post("/saveTodo", saveItems);
 app.post("/logout", logUserOut);
-app.use(serveStaticFiles);
-
-const handleRequest = app.handleRequest.bind(app);
+app.use(express.static("public"));
 
 module.exports = {
-  handleRequest,
-  provideData: serveStaticFiles,
+  app,
   getRequest,
   parseData,
   parseLoginData,

@@ -31,7 +31,7 @@ const form = {
           <button>Sign Up</button>
         </form>
         <div class="login-link">
-        <a href="/login">Already have an account?</a>
+        <a href="/">Already have an account?</a>
         </div>
       </div>
     </div>
