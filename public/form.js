@@ -27,7 +27,7 @@ const form = {
           <input type="text" placeholder="name" name="name" />
           <input type="text" placeholder="username" name="username" />
           <input type="password" placeholder="password" name="password" />
-          <input type="password" placeholder="confirm password" name="confirm password" />
+          <input type="password" placeholder="confirm password" name="confirmPassword" />
           <button>Sign Up</button>
         </form>
         <div class="login-link">

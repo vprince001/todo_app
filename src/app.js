@@ -148,8 +148,8 @@ const userExist = function(res, filePath) {
   return true;
 };
 
-const passwordMatched = function(res, PASSWORD = null, savedPassword = null) {
-  if (PASSWORD != savedPassword) {
+const passwordMatched = function(res, password = null, savedPassword = null) {
+  if (password != savedPassword) {
     res.write("Wrong Password");
     res.end();
     return false;
@@ -171,22 +171,11 @@ const reviveInstances = function(USERID) {
   }
 };
 
-const parseSignUpData = function(req) {
-  const name = parseData(req.body, 0);
-  const userId = parseData(req.body, 1).toLowerCase();
-  const password = parseData(req.body, 2);
-  const confirmPassword = parseData(req.body, 3);
-  return {
-    name: name,
-    USERID: userId,
-    PASSWORD: password,
-    confirmPassword: confirmPassword
-  };
-};
-
 const registerNewUser = function(req, res) {
-  const { name, USERID, PASSWORD, confirmPassword } = parseSignUpData(req);
-  let filePath = `./private_data/${USERID}.json`;
+  const { name, username, password, confirmPassword } = req.body;
+  console.log("req.body", req.body);
+
+  let filePath = `./private_data/${username}.json`;
 
   if (fs.existsSync(filePath)) {
     res.write("Account already Exists");
@@ -194,7 +183,7 @@ const registerNewUser = function(req, res) {
     return;
   }
 
-  if (PASSWORD != confirmPassword) {
+  if (password != confirmPassword) {
     res.write("passwords do not match");
     res.end();
     return;
@@ -202,8 +191,8 @@ const registerNewUser = function(req, res) {
 
   const userDetails = {
     name: name,
-    USERID: USERID,
-    PASSWORD: PASSWORD,
+    username: username,
+    password: password,
     todoLists: []
   };
 
@@ -237,7 +226,7 @@ const loadHomePage = function(req, res, filePath) {
     let userData = JSON.parse(content);
 
     if (!req.cookies.username) {
-      if (!passwordMatched(res, password, userData.PASSWORD)) return;
+      if (!passwordMatched(res, password, userData.password)) return;
       res.cookie("username", username);
     }
 
