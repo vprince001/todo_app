@@ -1,7 +1,9 @@
 const fs = require("fs");
 const express = require("express");
-const cookieParser = require("cookie-parser");
 const app = express();
+
+const cookieParser = require("cookie-parser");
+const bodyParser = require("body-parser");
 const form = require("../public/form.js");
 
 const { INDEXPATH, ENCODING, FORMPLACEHOLDER } = require("./constants");
@@ -14,26 +16,8 @@ let session = new Object();
 //-------------------------Server Handlers-------------------------//
 
 const getUserData = function(req, res) {
-  const userId = retrieveUserId(req);
-  res.send(JSON.stringify(session[userId]));
-};
-
-const retrieveUserId = function(req) {
-  return req.headers.cookie.split("=")[1];
-};
-
-const setCookie = function(req, res) {
-  const { USERID } = parseLoginData(req);
-  res.setHeader("Set-Cookie", `username=${USERID}`);
-};
-
-const readBody = function(req, res, next) {
-  let content = "";
-  req.on("data", chunk => (content += chunk));
-  req.on("end", () => {
-    req.body = content;
-    next();
-  });
+  const { username } = req.cookies;
+  res.send(JSON.stringify(session[username]));
 };
 
 const getRequest = function(url) {
@@ -44,9 +28,9 @@ const getRequest = function(url) {
 //-------------------------TODO Handlers-------------------------//
 
 const writeData = function(req, res) {
-  const userId = retrieveUserId(req);
-  const filePath = `./private_data/${userId}.json`;
-  const data = JSON.stringify(session[userId]);
+  const { username } = req.cookies;
+  const filePath = `./private_data/${username}.json`;
+  const data = JSON.stringify(session[username]);
 
   fs.writeFile(filePath, data, err => {
     if (err) throw err;
@@ -56,10 +40,8 @@ const writeData = function(req, res) {
 };
 
 const logUserOut = function(req, res) {
-  let expiryDate = "Thu, 01 Jan 1970 00:00:00 UTC;";
-  res.setHeader("Set-Cookie", `username=;expires=${expiryDate};`);
-  res.writeHead(302, { Location: "/" });
-  res.end();
+  res.clearCookie("username");
+  res.redirect("/");
 };
 
 const deleteItem = function(req, res) {
@@ -80,13 +62,15 @@ const saveItems = function(req, res) {
     newDescription,
     checkBoxesStatus,
     editedItems
-  } = JSON.parse(req.body);
+  } = req.body;
 
-  const userId = retrieveUserId(req);
-  const listIndex = session[userId].todoLists.findIndex(
+  const { username } = req.cookies;
+
+  const listIndex = session[username].todoLists.findIndex(
     list => list.id == listId
   );
-  const savedItems = session[userId].todoLists[listIndex].items;
+
+  const savedItems = session[username].todoLists[listIndex].items;
 
   editedItems.forEach(editedItem => {
     let editedItemId = editedItem.id.substring(4);
@@ -104,9 +88,9 @@ const saveItems = function(req, res) {
     index++;
   });
 
-  session[userId].todoLists[listIndex].editTitle(newTitle);
-  session[userId].todoLists[listIndex].editDescription(newDescription);
-  session[userId].todoLists[listIndex].items = savedItems;
+  session[username].todoLists[listIndex].editTitle(newTitle);
+  session[username].todoLists[listIndex].editDescription(newDescription);
+  session[username].todoLists[listIndex].items = savedItems;
   writeData(req, res);
 };
 
@@ -187,16 +171,6 @@ const reviveInstances = function(USERID) {
   }
 };
 
-const parseData = function(content, index) {
-  return content.split("&")[index].split("=")[1];
-};
-
-const parseLoginData = function(req) {
-  const userId = parseData(req.body, 0);
-  const password = parseData(req.body, 1);
-  return { USERID: userId, PASSWORD: password };
-};
-
 const parseSignUpData = function(req) {
   const name = parseData(req.body, 0);
   const userId = parseData(req.body, 1).toLowerCase();
@@ -236,16 +210,15 @@ const registerNewUser = function(req, res) {
   fs.writeFile(filePath, JSON.stringify(userDetails), err => {
     if (err) throw err;
   });
-  res.writeHead(302, { Location: "/" });
-  res.end();
+  res.redirect("/");
 };
 
 const logUserIn = function(req, res) {
-  const { USERID, PASSWORD } = parseLoginData(req);
-  const filePath = `./private_data/${USERID}.json`;
+  const { username } = req.body;
+  const filePath = `./private_data/${username}.json`;
 
   if (!userExist(res, filePath)) return;
-  loadHomePage(req, res, filePath, USERID, PASSWORD);
+  loadHomePage(req, res, filePath);
 };
 
 const loadIndexPage = function(req, res, nameOfForm) {
@@ -255,24 +228,26 @@ const loadIndexPage = function(req, res, nameOfForm) {
   });
 };
 
-const loadHomePage = function(req, res, filePath, USERID, PASSWORD) {
+const loadHomePage = function(req, res, filePath) {
+  const { username, password } = req.body;
+
   fs.readFile(filePath, (err, content) => {
     if (err) throw err;
 
     let userData = JSON.parse(content);
 
     if (!req.cookies.username) {
-      if (!passwordMatched(res, PASSWORD, userData.PASSWORD)) return;
-      setCookie(req, res);
+      if (!passwordMatched(res, password, userData.PASSWORD)) return;
+      res.cookie("username", username);
     }
 
-    session[USERID] = userData;
-    reviveInstances(USERID);
+    session[username] = userData;
+    reviveInstances(username);
     const filePath = "./public/htmls/homepage.html";
 
     fs.readFile(filePath, ENCODING, function(err, content) {
       if (err) throw err;
-      res.write(content.replace("___userId___", session[USERID].name));
+      res.write(content.replace("___userId___", session[username].name));
       res.end();
     });
   });
@@ -288,7 +263,8 @@ const renderMainPage = function(nameOfForm, req, res) {
   loadIndexPage(req, res, nameOfForm);
 };
 
-app.use(readBody);
+app.use(bodyParser());
+app.use(bodyParser.json());
 app.use(cookieParser());
 app.get("/", renderMainPage.bind(null, "loginForm"));
 app.post("/", logUserIn);
@@ -306,7 +282,5 @@ app.use(express.static("public"));
 module.exports = {
   app,
   getRequest,
-  parseData,
-  parseLoginData,
   renderMainPage
 };

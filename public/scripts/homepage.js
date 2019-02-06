@@ -128,6 +128,7 @@ const saveItems = function() {
 
   let details = {
     method: "POST",
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       listId: selectedListId,
       newTitle: newTitle,
