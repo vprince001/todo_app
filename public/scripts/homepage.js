@@ -5,6 +5,7 @@ const deleteItem = function(event) {
 
   fetch("/deleteItem", {
     method: "POST",
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ itemId: itemId, listId: selectedListId })
   })
     .then(response => response.text())
@@ -23,6 +24,7 @@ const addItem = function() {
   const event = { target: { id: selectedListId } };
   fetchItems(event, "/newItem", {
     method: "POST",
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ desc: itemDesc, id: selectedListId })
   });
 };
@@ -200,7 +202,11 @@ const fetchItems = function(event, url = "/data", details) {
 };
 
 const deleteList = function() {
-  fetchLists("/deleteTodo", { method: "POST", body: selectedListId });
+  fetchLists("/deleteTodo", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ selectedListId })
+  });
   document.getElementById("itemArea").innerHTML = "";
 };
 
@@ -224,6 +230,7 @@ const addList = function() {
   listDescriptionElement.value = "";
   fetchLists("/newTodo", {
     method: "POST",
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ listTitle, listDescription })
   });
 };

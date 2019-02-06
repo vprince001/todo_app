@@ -45,13 +45,13 @@ const logUserOut = function(req, res) {
 };
 
 const deleteItem = function(req, res) {
-  const { itemId, listId } = JSON.parse(req.body);
-  const userId = retrieveUserId(req);
+  const { itemId, listId } = req.body;
+  const { username } = req.cookies;
 
-  const listIndex = session[userId].todoLists.findIndex(
+  const listIndex = session[username].todoLists.findIndex(
     list => list.id == listId
   );
-  session[userId].todoLists[listIndex].deleteItem(itemId);
+  session[username].todoLists[listIndex].deleteItem(itemId);
   writeData(req, res);
 };
 
@@ -95,36 +95,37 @@ const saveItems = function(req, res) {
 };
 
 const addItem = function(req, res) {
-  const { id, desc } = JSON.parse(req.body);
+  const { id, desc } = req.body;
   let item = { id: 0, description: desc, status: false };
-  const userId = retrieveUserId(req);
+  const { username } = req.cookies;
 
-  const matchedList = session[userId].todoLists.filter(
+  const matchedList = session[username].todoLists.filter(
     list => list.id == id
   )[0];
   if (matchedList.items.length > 0) {
     item.id = matchedList.items[0].id + 1;
   }
-  let listIndex = session[userId].todoLists.findIndex(item => item.id == id);
+  let listIndex = session[username].todoLists.findIndex(item => item.id == id);
 
   let newItem = new Item(item);
-  session[userId].todoLists[listIndex].addItem(newItem);
+  session[username].todoLists[listIndex].addItem(newItem);
   writeData(req, res);
 };
 
 const deleteList = function(req, res) {
-  const todoId = req.body;
-  const userId = retrieveUserId(req);
-  session[userId].deleteTodo(todoId);
+  const { selectedListId } = req.body;
+  const { username } = req.cookies;
+  session[username].deleteTodo(selectedListId);
   writeData(req, res);
 };
 
 const addList = function(req, res) {
-  const { listTitle, listDescription } = JSON.parse(req.body);
-  const userId = retrieveUserId(req);
+  const { listTitle, listDescription } = req.body;
+
+  const { username } = req.cookies;
   let listId = 0;
-  if (session[userId].todoLists.length > 0) {
-    listId = session[userId].todoLists[0].id + 1;
+  if (session[username].todoLists.length > 0) {
+    listId = session[username].todoLists[0].id + 1;
   }
 
   const todo = {
@@ -135,7 +136,7 @@ const addList = function(req, res) {
   };
 
   let list = new Todo(todo);
-  session[userId].addTodo(list);
+  session[username].addTodo(list);
   writeData(req, res);
 };
 
@@ -173,7 +174,6 @@ const reviveInstances = function(USERID) {
 
 const registerNewUser = function(req, res) {
   const { name, username, password, confirmPassword } = req.body;
-  console.log("req.body", req.body);
 
   let filePath = `./private_data/${username}.json`;
 
