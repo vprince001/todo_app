@@ -17,6 +17,7 @@
     "mocha": "^5.2.0"
   },
   "dependencies": {
+    "cookie-parser": "^1.4.3",
     "express": "^4.16.4"
   }
 }

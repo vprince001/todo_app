@@ -1,5 +1,6 @@
 const fs = require("fs");
 const express = require("express");
+const cookieParser = require("cookie-parser");
 const app = express();
 const form = require("../public/form.js");
 
@@ -12,15 +13,9 @@ let session = new Object();
 
 //-------------------------Server Handlers-------------------------//
 
-const send = function(res, content, statusCode = 200) {
-  res.statusCode = statusCode;
-  res.write(content);
-  res.end();
-};
-
 const getUserData = function(req, res) {
   const userId = retrieveUserId(req);
-  send(res, JSON.stringify(session[userId]), 200);
+  res.send(JSON.stringify(session[userId]));
 };
 
 const retrieveUserId = function(req) {
@@ -266,7 +261,7 @@ const loadHomePage = function(req, res, filePath, USERID, PASSWORD) {
 
     let userData = JSON.parse(content);
 
-    if (!req.headers.cookie) {
+    if (!req.cookies.username) {
       if (!passwordMatched(res, PASSWORD, userData.PASSWORD)) return;
       setCookie(req, res);
     }
@@ -284,16 +279,17 @@ const loadHomePage = function(req, res, filePath, USERID, PASSWORD) {
 };
 
 const renderMainPage = function(nameOfForm, req, res) {
-  if (req.headers.cookie) {
-    let userId = retrieveUserId(req);
-    const filePath = `./private_data/${userId}.json`;
-    loadHomePage(req, res, filePath, userId);
+  const { username } = req.cookies;
+  if (username) {
+    const filePath = `./private_data/${username}.json`;
+    loadHomePage(req, res, filePath);
     return;
   }
   loadIndexPage(req, res, nameOfForm);
 };
 
 app.use(readBody);
+app.use(cookieParser());
 app.get("/", renderMainPage.bind(null, "loginForm"));
 app.post("/", logUserIn);
 app.get("/signup", renderMainPage.bind(null, "signUpForm"));
